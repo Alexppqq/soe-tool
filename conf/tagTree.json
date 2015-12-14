@@ -1,0 +1,12 @@
+{ "name": "root","max": -1, "ratio": 1,"children": 
+[
+   {"name": "small","max": 4,"ratio": 1, "concurrent": 2},
+   {"name": "medium","max": 10,"ratio": 2,"concurrent": 2},
+   {"name": "large", "max": 30,"ratio": 3, "concurrent": 2,"children":
+   [
+      {"name": "subtree1","max": 20,"ratio": 2,"concurrent": 2},
+      {"name": "subtree2","max": 20,"ratio": 1,"concurrent": 2}
+   ]
+   }
+]
+}
