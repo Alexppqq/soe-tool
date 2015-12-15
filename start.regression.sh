@@ -7,17 +7,22 @@
 #    
 #############################################################################################################
 
-### source ENV 
+### source user envrionment 
 source ./conf/environment.conf
-### source public function
+### source framework library function
 source ./lib/framework.func
+### source Symphony profile
+source $EGO_TOP/profile.platform 
+egosh user logon -u Admin -x Admin
+
 ### validaty check,  create report and logs dir
 if [[ -z "$1" || -n $2 ]]; then
    echo " Usage: There're two modes to run this tools."
    echo "        Regression  Mode:  $0 Case_Group_Dir"
-   echo "                           such as: $0 ./caseList"
+   echo "                           such as: $0 suites"
    echo "        Single file Mode:  $0 Script_Case_File"
-   echo "                           such as: $0 ./caseList/xx.sh"
+   echo "                           such as: $0 suites/xx.sh"
+   echo "                                    $0 suites/xx.bats"
    echo "        please configure conf/environment.conf before regression"
    exit 1
 elif [[ ! -x $1 ]]; then
@@ -52,7 +57,11 @@ cat $val_report_dir/caseList | while read val_case_name; do
     export val_case_name
     SECONDS=0  #system var to trace running time
     while [ "$SECONDS" -le "$CASE_RUNNING_TIMEOUT" ];do  #case timeout, defined by CASE_RUNNING_TIMEOUT
-      ./$val_case_name  1> $val_case_log_dir/stdout 2> $val_case_log_dir/stderr
+      if [[  -n `echo $val_case_name| grep 'bats$'` ]]; then
+         bin/bats --tap $val_case_name 1> $val_case_log_dir/stdout 2> $val_case_log_dir/stderr
+      else
+         ./$val_case_name  1> $val_case_log_dir/stdout 2> $val_case_log_dir/stderr
+      fi
       break
     done
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
