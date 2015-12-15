@@ -1,0 +1,290 @@
+#!/bin/sh
+
+###############################
+###   function of framework
+###############################
+function fw_create_report_dir ()
+{
+  val_report_dir=$TEST_TOOL_HOME/reports/report-`date +%s`
+  mkdir $val_report_dir
+  mkdir $val_report_dir/logs
+  val_test_report=$val_report_dir/testReport.txt
+}
+function ca_recover_and_exit ()
+{
+   mv $SPARK_CONF_DIR/spark-env.sh.org.bak $SPARK_CONF_DIR/spark-env.sh
+   mv $SPARK_CONF_DIR/spark-defaults.conf.org.bak $SPARK_CONF_DIR/spark-defaults.conf
+   mv $SPARK_CONF_DIR/log4j.properties.org.bak $SPARK_CONF_DIR/log4j.properties
+   if [ -n $1 ]; then
+      exit $1
+   else
+      exit 0
+   fi
+}
+function fw_write_report_title ()
+{
+  dateBeginRegression=`date`
+  echo "---------------------------------------------------------------------"   &>> $val_test_report
+  echo ""  &>> $val_test_report
+  echo "                      Regression Test Report       "   &>> $val_test_report
+  echo ""  &>> $val_test_report
+  echo "---------------------------------------------------------------------"   &>> $val_test_report
+  echo -n "     Ego Version: " &>> $val_test_report; egosh -V 1>/dev/null 2>> $val_test_report
+  echo  "" >> $val_test_report
+  echo -e "     SparkOnEgo Version: "`$SPARK_HOME/bin/spark-submit --egoversion`  &>> $val_test_report
+  echo -e "     Date: " $dateBeginRegression  &>> $val_test_report
+  echo "---------------------------------------------------------------------"   &>> $val_test_report
+}
+function fw_report_write_case_result_to_file ()
+{
+  if [[ "$#" -eq 3 && -n "$1" && -n "$2" && -n "$3" ]]; then 
+     echo -e "${1}\n${2}\n${3}" > $val_case_log_dir/caseResult
+  elif [[ "$#" -eq 2 && -n "$1" && -n "$2" ]]; then
+     echo -e "${1}\n${2}" > $val_case_log_dir/caseResult
+  else 
+     echo "error: $0: parameters should be CaseName CaseResult Reason."
+     ca_recover_and_exit 1;
+  fi
+}
+function fw_report_count_line_case_result_file ()
+{
+  if [[ ! -f $val_case_log_dir/caseResult ]]; then
+     echo 0
+  else
+     echo `cat $val_case_log_dir/caseResult|wc -l`
+  fi
+}
+function fw_report_write_case_result_to_report ()
+{
+  if [[  ! -f $val_case_log_dir/caseResult ]]; then
+     echo "error: $0: file of case result ($val_case_log_dir/caseResult) cannot be found."
+     #exit 1;
+  fi
+  cat $val_case_log_dir/caseResult | while read line; do
+  echo -e "$line \c" >> $val_test_report
+  done
+  echo  "" >> $val_test_report #newline
+}
+
+function fw_report_calculate_statis ()
+{
+  #could rewrite it with grep -c
+  casesPassed=`sed -n '/Pass/'p $val_report_dir/testReport.txt | wc -l`
+  casesFailed=`sed -n '/Fail/'p $val_report_dir/testReport.txt | wc -l`
+  casesSkiped=`sed -n '/Skip/'p $val_report_dir/testReport.txt | wc -l`
+  casesTimeout=`sed -n '/Timeout/'p $val_report_dir/testReport.txt | wc -l`
+  casesTotal=`expr $casesPassed + $casesFailed + $casesTimeout`
+  if [[ "$casesTotal" -gt "0" ]]; then
+     passRate=`awk 'BEGIN{printf "%.2f%%",('$casesPassed' * 100 / '$casesTotal')}'`   
+  else
+     passRate=0
+  fi
+  echo "----------------------------------------------------------------------"   &>> $val_test_report
+  echo ""   &>> $val_test_report
+  echo "     Total: $casesTotal" &>> $val_test_report
+  echo "     Pass: $casesPassed" &>> $val_test_report
+  echo "     Fail: $casesFailed" &>> $val_test_report
+  echo "     Timeout: $casesTimeout" &>> $val_test_report
+  echo "     Pass Rate(Pass/<Fail+Timeout>): $passRate" &>> $val_test_report
+  echo ""   &>> $val_test_report
+  echo "----------------------------------------------------------------------"   &>> $val_test_report
+}
+function sc_backup_spark_conf ()
+{
+  cp $SPARK_CONF_DIR/spark-env.sh $SPARK_CONF_DIR/spark-env.sh.org.bak
+  cp $SPARK_CONF_DIR/spark-defaults.conf $SPARK_CONF_DIR/spark-defaults.conf.org.bak
+  cp $SPARK_CONF_DIR/log4j.properties $SPARK_CONF_DIR/log4j.properties.org.bak
+  return 0
+}
+function ca_recover_and_exit ()
+{
+   mv $SPARK_CONF_DIR/spark-env.sh.org.bak $SPARK_CONF_DIR/spark-env.sh
+   mv $SPARK_CONF_DIR/spark-defaults.conf.org.bak $SPARK_CONF_DIR/spark-defaults.conf
+   mv $SPARK_CONF_DIR/log4j.properties.org.bak $SPARK_CONF_DIR/log4j.properties
+   if [ -n $1 ]; then
+      exit $1 
+   else
+      exit 0
+   fi
+}
+function fw_print_case ()
+{
+   ### validation check
+   if [[ -z "$1" || -n $2 ]]; then
+      echo "error: $0: no dir/file specified."
+      exit 1
+   elif [[ ! -x $1  ]]; then
+      echo "error: $0: $1 has no executable right."
+      exit 1
+   fi
+
+   if [[ -f $1 ]]; then
+      echo "$1"
+   elif [[ -d $1 ]]; then
+      for item in $1/*; do
+          if [[ -d $item && -x $item ]]; then
+              fw_print_case $item
+           elif [[ -x $item ]]; then
+              echo $item
+          fi
+      done
+   fi
+}
+function fw_create_case_list ()
+{
+   fw_print_case $1 >>  $val_report_dir/caseList
+}
+
+## configuration
+function sc_update_to_spark_env ()
+{
+   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+      echo "usage: $0 envName envValue"
+      echo "please make sure use it after backup customer's conf"
+      ca_recover_and_exit 1;
+   elif [[ ! -f $SPARK_CONF_DIR/spark-env.sh ]]; then
+      echo "error: $0: please make sure $SPARK_CONF_DIR/spark-env.sh is exist."
+      ca_recover_and_exit 1;
+   fi
+   envName=$1
+   envValue=$2
+   OLD_SETTING_DEF=`cat $SPARK_CONF_DIR/spark-env.sh | grep "^$envName="`
+   if [ -z "$OLD_SETTING_DEF" ]; then
+       lines=`cat $SPARK_CONF_DIR/spark-env.sh|wc -l`
+       if [ $lines -ne 0 ]; then
+           sed -i --follow-symlinks "\$a$envName=$envValue" $SPARK_CONF_DIR/spark-env.sh
+       else
+           echo "$envName=$envValue" >> $SPARK_CONF_DIR/spark-env.sh
+       fi
+   else
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-env.sh
+       sed -i --follow-symlinks "\$a$envName=$envValue" $SPARK_CONF_DIR/spark-env.sh
+   fi
+}
+
+function sc_update_to_spark_default ()
+{
+   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+      echo "usage: $0 envName envValue"
+      echo "please make sure use it after backup customer's conf"
+      ca_recover_and_exit 1;
+   elif [[ ! -f $SPARK_CONF_DIR/spark-defaults.conf ]]; then
+      echo "error: $0: please make sure $SPARK_CONF_DIR/spark-defaults.conf is exist."
+      ca_recover_and_exit 1;
+   fi
+   envName=$1
+   envValue=$2
+   #below grep cmd must have a spcace in the end
+   OLD_SETTING_DEF=`cat $SPARK_CONF_DIR/spark-defaults.conf | grep "^$envName "`
+   if [ -z "$OLD_SETTING_DEF" ]; then
+       lines=`cat $SPARK_CONF_DIR/spark-defaults.conf|wc -l`
+       if [ $lines -ne 0 ]; then
+           sed -i --follow-symlinks "\$a$envName $envValue" $SPARK_CONF_DIR/spark-defaults.conf
+       else
+          # "$lines -eq 0"
+          echo "$envName $envValue" >> $SPARK_CONF_DIR/spark-defaults.conf
+       fi
+   else
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks -e "s#^$envName #\#$envName #g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks "\$a$envName $envValue" $SPARK_CONF_DIR/spark-defaults.conf
+   fi
+}
+
+function ca_update_to_spark_log4j ()
+{
+   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+      echo "usage: $0 envName envValue"
+      echo "please make sure use it after backup customer's conf"
+      ca_recover_and_exit 1;
+   elif [[ ! -f $SPARK_CONF_DIR/log4j.properties ]]; then
+      echo "error: $0: please make sure $SPARK_CONF_DIR/log4j.properties is exist."
+      ca_recover_and_exit 1;
+   fi
+   envName=$1
+   envValue=$2
+   OLD_SETTING_DEF=`cat $SPARK_CONF_DIR/log4j.properties | grep "^$envName="`
+   if [ -z "$OLD_SETTING_DEF" ]; then
+       lines=`cat $SPARK_CONF_DIR/log4j.properties|wc -l`
+       if [ $lines -ne 0 ]; then
+          sed -i --follow-symlinks "\$a$envName=$envValue" $SPARK_CONF_DIR/log4j.properties
+       else
+          echo "$envName=$envValue" >> $SPARK_CONF_DIR/log4j.properties
+       fi
+   else
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/log4j.properties
+       echo "$envName=$envValue" >> $SPARK_CONF_DIR/log4j.properties
+   fi
+}
+
+function ca_enable_shuffle_service ()
+{
+   sc_update_to_spark_default "spark.shuffle.service.enabled" "true"
+}
+
+function sc_open_debug_log_4tag ()
+{
+   ca_update_to_spark_log4j "org.apache.spark.util.EGOSparkJsonConfig" "DEBUG"
+   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.policy.hierarchy.PolicyHierarchy" "DEBUG"
+   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.EGOResourceManager" "DEBUG"
+   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.Master" "DEBUG"
+}
+
+function sc_config_policy ()
+{
+   if [[ "$#" -ne 1 || -z "$1" ]]; then
+      echo "error: $0: no policy specified."
+      ca_recover_and_exit 1
+   else
+      sc_update_to_spark_default "spark.ego.app.schedule.policy" "$1"
+   fi
+}
+
+function sc_restart_master_by_ego_service ()
+{
+   currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: $0: no egosh be found."
+      ca_recover_and_exit 1;
+   fi
+   egosh service stop SPARKMaster; sleep 3; egosh service start SPARKMaster
+}
+
+function sc_restart_master_by_script ()
+{
+   $SPARK_HOME/sbin/stop-master.sh; sleep 3; $SPARK_HOME/sbin/start-master.sh
+}
+
+function ca_get_policy_inuse ()
+{
+   Policy_In_Use=`grep -m1 "Master application schedule policy" $MASTER_LOG| awk -F " " '{print $NF}'`
+   export Policy_In_Use;
+}
+
+function sc_verify_policy_take_effect ()
+{
+   if [[ "$#" -ne 1 || -z "$1" ]]; then
+      echo "error: $0: please specify expectd policy."
+      ca_recover_and_exit 1;
+   fi
+   policyInUse=`grep -m1 "Master application schedule policy" $MASTER_LOG| awk -F " " '{print $NF}'`
+   #echo "current policy is $policyInUse."
+   if [[ "$policyInUse" != "$1" ]]; then
+      echo "policy fail to take effect. in-use policy is $policyInUse, expected one is $1"
+      ca_recover_and_exit 1;
+   elif [[ "$policyInUse" == "$1" ]]; then
+      echo "policy $policyInUse take effect."
+   fi
+}
+
+#function xx_echo_log_in_color ()
+#{
+#   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+#      echo "error: $0: please specify content and color."
+#      if [[ -n "$1" ]]; then
+#         echo -e "\\033[31m${1}\\033[0m"
+#      fi
+#   else
+#      echo -e "\\033[${2}m${1}\\033[0m"
+#  fi
+#}

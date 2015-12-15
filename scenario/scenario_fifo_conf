@@ -1,0 +1,30 @@
+#!/bin/sh
+
+###############################
+###   test scenario
+###############################
+#   policy: fifo
+#   slots reserve: no  
+###############################
+val_scenario_name=scenario_fifo
+#source ./conf/environment.conf
+#source ./lib/framework.func
+
+echo "$val_scenario_name - backup spark conf files" 
+sc_backup_spark_conf;
+echo "$val_scenario_name - update spark conf" 
+#basic setting
+sc_update_to_spark_env "JAVA_HOME" "$JAVA_HOME"
+sc_update_to_spark_env "HADOOP_CONF_DIR" "$HADOOP_HOME/etc/hadoop"
+sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
+#policy
+sc_config_policy "fifo"
+#log level
+sc_open_debug_log_4tag
+echo "$val_scenario_name - make new conf take effect"
+#sc_restart_master_by_ego_service
+sc_restart_master_by_script
+sleep 10
+echo "$val_scenario_name - check if policy configured take effect"
+sc_verify_policy_take_effect "fifo"
+echo "--------------------------"
