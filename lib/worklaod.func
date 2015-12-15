@@ -1,0 +1,175 @@
+#!/bin/sh
+
+###############################
+###   common function  
+###############################
+function ca_get_akka_driver_status ()
+{
+   if [[ -n $1 ]]; then
+      driverStatus=`grep "driver-" $1 | awk '/State of/ {print $NF}'`
+      #echo "driver success to submit: $driverStatus"
+      echo $driverStatus
+   else
+      echo "error: $0: please specify a file."
+      ca_recover_and_exit 1;
+   fi 
+} 
+function ca_get_restapi_driver_status ()
+{
+   if [[ -n $1 ]]; then 
+      driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
+      #echo "driver success to submit: $driverStatus"
+      echo $driverStatus
+   else
+      echo "error: $0: please specify a file."
+      ca_recover_and_exit 1;
+   fi
+}
+function ca_get_akka_driver_name ()
+{
+   if [[ -n $1 ]]; then
+      drivername=`grep "driver-" $1 | awk '/State of/  {print $7}'`
+      #echo "driver name: $drivername" 
+      echo $drivername
+   else
+      echo "error: $0: please specify a file."
+      ca_recover_and_exit 1;
+   fi
+}
+function ca_get_restapi_driver_name ()
+{
+   if [[ -n $1 ]]; then
+     drivername=`sed 's/\"//g' $1 | sed 's/,//g' | awk '/submissionId/  {print $3}'`
+     #echo "driver name: $drivername" 
+     echo $drivername
+   else
+      echo "error: $0: please specify a file."
+      ca_recover_and_exit 1;
+   fi
+}
+function ca_find_by_key_word ()
+{
+   if [[ ! -f $1 || -z $2 ]]; then
+      echo "error: $0: please specify key word and file to look up."
+      ca_recover_and_exit 1;
+   fi
+   findresult=`grep "$2" $1`
+   #echo "find by key word: $findresult"
+   echo $findresult
+}
+function ca_assert_num_gt ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -gt "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass" 
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3" 
+  fi
+}
+function ca_assert_num_ge ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -ge "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass" 
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"    
+  fi
+}
+function ca_assert_num_eq ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -eq "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass" 
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"    
+  fi
+}
+function ca_assert_num_ne ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -ne "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass" 
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"    
+  fi
+}
+function ca_assert_num_lt ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -lt "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass"
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"
+  fi
+}
+function ca_assert_num_le ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" -le "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass"
+  else 
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"    
+  fi
+}
+function ca_assert_str_eq ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" == "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass"
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"
+  fi
+}
+function ca_assert_str_ne ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)variable, 2)threshold, 3)fail reason."
+  elif [[ "$1" != "$2" ]]; then
+     fw_report_write_case_result_to_file $val_case_name "Pass"
+  else
+     fw_report_write_case_result_to_file $val_case_name "Fail" "$3"
+  fi
+}
+function ca_case_filter_equal ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_case_filter  1)val_of_ENV, 2)value_Expected, 3)skip reason."
+  elif [[ "$1" != "$2" ]]; then
+     echo "case skiped, $3."
+     fw_report_write_case_result_to_file $val_case_name "Skip" "$3"
+     exit 1;
+  else
+     echo "case filter was meeted: $1 == $2."
+  fi
+}
+function ca_case_filter_notequal ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_case_filter  1)val_of_ENV, 2)value_notExpected, 3)skip reason."
+  elif [[ "$1" == "$2" ]]; then
+     echo "case skiped, $3."
+     fw_report_write_case_result_to_file $val_case_name "Skip" "$3"
+     exit 1;
+  else
+     echo "case filter was meeted: $1 != $2."
+  fi
+}
+function ca_filter_only_gpfs ()
+{
+  ca_case_filter_equal "$DIST_FILE_SYSTEM" GPFS "case designed only for GPFS. DIST_FILE_SYSTEM != GPFS" 
+}
+function ca_filter_only_singleHost ()
+{
+  ca_case_filter_equal "$HOST_NUM" 1 "case designed only for single host cluser. HOST_NUM != 1"
+}
+function ca_filter_only_multipleHost ()
+{
+  ca_case_filter_notequal "$HOST_NUM" 1 "case designed only for multiple host cluser. HOST_NUM == 1"
+}
