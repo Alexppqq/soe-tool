@@ -6,8 +6,8 @@
 function fw_create_report_dir ()
 {
   val_report_dir=$TEST_TOOL_HOME/reports/report-`date +%s`
-  mkdir $val_report_dir
-  mkdir $val_report_dir/logs
+  mkdir -p $val_report_dir
+  mkdir -p $val_report_dir/logs
   val_test_report=$val_report_dir/testReport.txt
 }
 function ca_recover_and_exit ()
@@ -71,7 +71,7 @@ function fw_report_calculate_statis ()
   #could rewrite it with grep -c
   casesPassed=`sed -n '/Pass/'p $val_report_dir/testReport.txt | wc -l`
   casesFailed=`sed -n '/Fail/'p $val_report_dir/testReport.txt | wc -l`
-  casesSkiped=`sed -n '/Skip/'p $val_report_dir/testReport.txt | wc -l`
+  casesSkipped=`sed -n '/Skip/'p $val_report_dir/testReport.txt | wc -l`
   casesTimeout=`sed -n '/Timeout/'p $val_report_dir/testReport.txt | wc -l`
   casesTotal=`expr $casesPassed + $casesFailed + $casesTimeout`
   if [[ "$casesTotal" -gt "0" ]]; then
@@ -85,6 +85,7 @@ function fw_report_calculate_statis ()
   echo "     Pass: $casesPassed" &>> $val_test_report
   echo "     Fail: $casesFailed" &>> $val_test_report
   echo "     Timeout: $casesTimeout" &>> $val_test_report
+  echo "     Skip: $casesSkipped" &>>  $val_test_report
   echo "     Pass Rate(Pass/<Fail+Timeout>): $passRate" &>> $val_test_report
   echo ""   &>> $val_test_report
   echo "----------------------------------------------------------------------"   &>> $val_test_report
@@ -107,26 +108,34 @@ function ca_recover_and_exit ()
       exit 0
    fi
 }
+function fw_get_file_type ()
+{
+  if [[ -z "$1" || -n $2 ]]; then
+     echo "error: $0: no file specified or too many specified."
+  elif [[ ! -f $1 ]]; then
+     echo "error: $0: $1 is not a valid file name."
+  fi
+  echo $1|awk -F "." '{print $NF}'
+}
+## find .sh file with executable right and .bats file recursively
 function fw_print_case ()
 {
    ### validation check
    if [[ -z "$1" || -n $2 ]]; then
-      echo "error: $0: no dir/file specified."
-      exit 1
-   elif [[ ! -x $1  ]]; then
-      echo "error: $0: $1 has no executable right."
+      echo "error: $0: no dir/file specified or too many parameters specified."
       exit 1
    fi
 
    if [[ -f $1 ]]; then
-      echo "$1"
-   elif [[ -d $1 ]]; then
+      fileType=`fw_get_file_type $1`
+      if [[ "$fileType" == "sh" && -x $1 ]]; then
+         echo $1
+      elif [[ "$fileType" == "bats" ]]; then
+         echo $1
+      fi
+   elif [[ -d $1 && -x $1 ]]; then
       for item in $1/*; do
-          if [[ -d $item && -x $item ]]; then
               fw_print_case $item
-           elif [[ -x $item ]]; then
-              echo $item
-          fi
       done
    fi
 }
