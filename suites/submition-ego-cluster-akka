@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#source env
+source ./conf/environment.conf
+source ./lib/framework.func
+source ./lib/worklaod.func
+source ./lib/nonmaster.func
+#run scenario
+source ./scenario/scenario_fifo_conf 
+
+#case name
+#val_case_name=submition-cluster-akka
+
+#run case
+echo "$val_case_name - begin" 
+echo "$val_case_name - sbumit job"
+#$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 >>  $val_case_log_dir/stdout 2>> $val_case_log_dir/stderr
+$SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $val_case_log_dir/tmpOut
+sleep 10
+driverStatus=`ca_get_nonmaster_driver_status $val_case_log_dir/tmpOut`
+echo "$val_case_name - driver status: $driverStatus"
+driverid=`ca_get_nonmaster_driver_id $val_case_log_dir/tmpOut`
+drivername="spark-driver-alloc-"$driverid".stdout"
+echo "$val_case_name - driver name: $drivername" 
+sleep 20
+jobStatus=`ca_find_by_key_word /tmp/logs/$drivername "Job done"`
+echo "$val_case_name - job status: $jobStatus"
+echo "$val_case_name - write report"
+if [ -z "$jobStatus" ]; then
+   fw_report_write_case_result_to_file $val_case_name "Fail" "job cannot finish"
+elif [ -n "$jobStatus" ]; then
+   fw_report_write_case_result_to_file $val_case_name "Pass" "job done"
+fi
+echo "$val_case_name - end" 
+
+ca_recover_and_exit 0;
