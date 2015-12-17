@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 load ../helpers/assertions/all
-source /root/gaop/soe-tool/lib/worklaod.func
-source /root/gaop/soe-tool/lib/framework.func
+load $BATS_CWD/lib/worklaod.func
+load $BATS_CWD/lib/framework.func
 
 setup() {
         echo "\"submissionId\" : \"driver-20151217055757-0001-b9d7da07-7f2c-4789-8b64-6b03619df531\""  > $BATS_TMPNAME

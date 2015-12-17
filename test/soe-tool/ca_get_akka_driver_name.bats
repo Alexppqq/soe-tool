@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 load ../helpers/assertions/all
-source /root/gaop/soe-tool/lib/worklaod.func
-source /root/gaop/soe-tool/lib/framework.func
+load $BATS_CWD/lib/worklaod.func
+load $BATS_CWD/lib/framework.func
 
 setup() {
 	echo "State of driver-20151217023811-0000-842124fe-0520-48f0-a9e1-778abf3715f8 is RUNNING" > $BATS_TMPNAME
