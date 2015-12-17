@@ -12,20 +12,15 @@ teardown() {
     [ -f $BATS_TMPDIR/caseResult ] && rm -rf $BATS_TMPDIR/caseResult
 }
 
-@test "assert_num_ge > result pass" {
-    run ca_assert_num_ge 2 1 "job not done"
+@test 'assert_str_eq "A" = "A" result pass' {
+    run ca_assert_str_eq "abcd" "abcd"  "job not done"
     run cat $BATS_TMPDIR/caseResult
     assert_line 1 "Pass"
 }
 
-@test "assert_num_ge = result pass" {
-    run ca_assert_num_ge 2 2 "job not done"
-    run cat $BATS_TMPDIR/caseResult
-    assert_line 1 "Pass"
-}
-
-@test "assert_num_ge < failed" {
-    run ca_assert_num_ge 1 2 "job not done"
+@test 'assert_str_eq "A" != "B" failed' {
+    run ca_assert_str_eq "abcd" "efgh" "job not done"
     run cat $BATS_TMPDIR/caseResult
     assert_line 2 "job not done"
 }
+
