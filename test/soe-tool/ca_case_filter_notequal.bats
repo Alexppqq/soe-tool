@@ -19,7 +19,7 @@ teardown() {
 
 @test 'case_filter_notequal result pass' {
     run ca_case_filter_notequal "1" "2" "unmatch" 
-    assert_contains "case filter was meeted"    
+    assert_output_contains "case filter was meeted"    
 }
 
 @test 'case_filter_notequal failed' {
