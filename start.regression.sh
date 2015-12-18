@@ -8,9 +8,9 @@
 #############################################################################################################
 
 ### source user envrionment 
-source ./conf/environment.conf
+source $TEST_TOOL_HOME/conf/environment.conf
 ### source framework library function
-source ./lib/framework.func
+source $TEST_TOOL_HOME/lib/framework.func
 ### source Symphony profile
 source $EGO_TOP/profile.platform 
 egosh user logon -u Admin -x Admin

@@ -13,9 +13,9 @@
 # ./lib/worklaod.func : functions used by case
 # other library case may needed
 ################################################################################################
-source ./conf/environment.conf
-source ./lib/framework.func
-source ./lib/worklaod.func
+source $TEST_TOOL_HOME/conf/environment.conf
+source $TEST_TOOL_HOME/lib/framework.func
+source $TEST_TOOL_HOME/lib/worklaod.func
 
 ################################################################################################
 # Part 2: (Optional) case filter
@@ -47,7 +47,7 @@ ca_filter_only_singleHost    # signle host cluster only, skip if HOST_NUM in ./c
 #
 # any thing related to EGO configuration should also be done in scenario. but it has not be supported by now 
 ################################################################################################
-source ./scenario/scenario_fifo_conf 
+source $TEST_TOOL_HOME/scenario/scenario_fifo_conf 
 
 
 ################################################################################################

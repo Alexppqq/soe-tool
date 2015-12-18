@@ -9,7 +9,7 @@ source $TEST_TOOL_HOME/lib/worklaod.func
 ca_filter_only_singleHost
 
 #run scenario
-source $TEST_TOOL_HOME/scenario/scenario_fifo_conf 
+source $TEST_TOOL_HOME/scenario/scenario_fairshare_conf 
 
 #case name
 #val_case_name=submition-client-akka

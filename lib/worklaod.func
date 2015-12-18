@@ -165,6 +165,10 @@ function ca_filter_only_gpfs ()
 {
   ca_case_filter_equal "$DIST_FILE_SYSTEM" GPFS "case designed only for GPFS. DIST_FILE_SYSTEM != GPFS" 
 }
+function ca_filter_only_hdfs ()
+{
+  ca_case_filter_equal "$DIST_FILE_SYSTEM" HDFS "case designed only for HDFS. DIST_FILE_SYSTEM != HDFS"
+}
 function ca_filter_only_singleHost ()
 {
   ca_case_filter_equal "$HOST_NUM" 1 "case designed only for single host cluser. HOST_NUM != 1"
@@ -172,4 +176,104 @@ function ca_filter_only_singleHost ()
 function ca_filter_only_multipleHost ()
 {
   ca_case_filter_notequal "$HOST_NUM" 1 "case designed only for multiple host cluser. HOST_NUM == 1"
+}
+function ca_spark_shell_run_sleep ()
+{
+if [[ "$#" -ne 3 ]]; then
+  echo "usage: ./0 taskNumber taskRunningTime taskType\nvalid value of taskType is 'sync' and 'async'"
+  exit 1
+fi
+
+taskNum=$1
+taskRunTime=$2
+taskExpTimeout=`expr ${2} \* 3 / 1000 + 30 `
+#echo $taskExpTimeout
+if [[ "$3" == "async" ]]; then
+   taskType="countAsync"
+elif [[ "$3" == "sync" ]]; then
+   taskType="count"
+else
+   echo "error: valid value of taskType is 'sync' and 'async'."
+   exit 1
+fi
+
+
+expect<<- END
+spawn $SPARK_HOME/bin/spark-shell
+set timeout 25
+expect "scala>"
+send "var numTasks = ${taskNum}\n"
+set timeout 3
+expect "scala>"
+send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(${taskRunTime}); i }.${taskType}()\n"
+set timeout ${taskExpTimeout}
+expect "onStageCompleted: stageId(0)"
+exit
+END
+}
+function ca_spark_shell_run_wordcount ()
+{
+if [[ "$#" -ne 2 ]]; then
+  echo "usage: ./0 input output"
+  exit 1
+fi
+
+inputFile=$1
+outputDir=$2
+echo $inputFile
+echo $outputDir
+
+expect<<- END
+spawn $SPARK_HOME/bin/spark-shell
+set timeout 100
+expect "scala>"
+send "val inputFile = sc.textFile(\"${inputFile}\")\r"
+set timeout 60
+expect "scala>"
+send "val counts = inputFile.flatMap(line => line.split(\" \")).map(word => (word, 1)).reduceByKey(_ + _);\r"
+set timeout 60
+expect "scala>"
+send "counts.toDebugString\r"
+set timeout 60
+expect "scala>"
+send "counts.cache()\r"
+set timeout 60
+expect "scala>"
+send "counts.collect().foreach(println)\r"
+set timeout 60
+expect "scala>"
+send "counts.saveAsTextFile(\"${outputDir}\")\r"
+set timeout 60
+expect "scala>"
+send "\n"
+exit
+END
+}
+function ca_spark_pyspark_run_sleep ()
+{
+if [[ "$#" -ne 2 ]]; then
+  echo "usage: ./0 taskNumber taskRunningTime"
+  exit 1
+fi
+
+taskNum=$1
+taskRunTime=$2
+taskExpTimeout=`expr ${2} \* 3 + 30 `
+
+#>>> import time
+#>>> sc.parallelize(xrange(1, 10), 6).map(lambda x: time.sleep(10)).count()
+
+
+expect<<- END
+spawn $SPARK_HOME/bin/pyspark
+set timeout 25
+expect ">>>"
+send "import time\n"
+set timeout 3
+expect ">>>"
+send "sc.parallelize(xrange(1, 10), ${taskNum}).map(lambda x: time.sleep(${taskRunTime})).count()\n"
+set timeout ${taskExpTimeout}
+expect "onStageCompleted: stageId(0)"
+exit
+END
 }

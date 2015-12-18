@@ -7,8 +7,8 @@
 #   slots reserve: no  
 ###############################
 val_scenario_name=scenario_base
-source ./conf/environment.conf
-source ./lib/framework.func
+source $TEST_TOOL_HOME/conf/environment.conf
+source $TEST_TOOL_HOME/lib/framework.func
 
 echo "$val_scenario_name - backup spark conf files" 
 sc_backup_spark_conf;

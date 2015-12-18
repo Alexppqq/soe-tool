@@ -20,7 +20,7 @@ echo "$val_case_name - sbumit job"
 $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $val_case_log_dir/tmpOut &
 sleep 25
 lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"|wc -l`
-#echo "$val_case_name - job output: $joboutput" #fortest
+echo `ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"`  #fortest
 echo "$val_case_name - write report"
 #if [ -z "$joboutput" ]; then
 #   fw_report_write_case_result_to_file $val_case_name "Fail" "job cannot finish" 
