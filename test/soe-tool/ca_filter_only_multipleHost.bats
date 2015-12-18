@@ -17,13 +17,15 @@ teardown() {
 }
 
 
-@test 'case_filter_equal result pass' {
-    run ca_case_filter_equal "1" "1" "unmatch" 
+@test 'filter_only_multipleHost result pass' {
+    export HOST_NUM=3
+    run ca_filter_only_multipleHost 
     assert_output_contains "case filter was meeted"    
 }
 
-@test 'case_filter_equal failed' {
-    run ca_case_filter_equal "abcd" "efgh" "unmatch"
+@test 'filter_only_multipleHost failed' {
+    export HOST_NUM=1
+    run ca_filter_only_multipleHost
     run cat $BATS_TMPDIR/caseResult
     assert_line 1 "Skip"
 }

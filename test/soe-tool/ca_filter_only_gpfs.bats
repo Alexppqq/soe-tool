@@ -17,14 +17,15 @@ teardown() {
 }
 
 
-@test 'case_filter_equal result pass' {
-    run ca_case_filter_equal "1" "1" "unmatch" 
+@test 'filter_only_gpfs result pass' {
+    export DIST_FILE_SYSTEM="GPFS"
+    run ca_filter_only_gpfs 
     assert_output_contains "case filter was meeted"    
 }
 
-@test 'case_filter_equal failed' {
-    run ca_case_filter_equal "abcd" "efgh" "unmatch"
+@test 'filter_only_gpfs failed' {
+    export DIST_FILE_SYSTEM="XXXX"
+    run ca_filter_only_gpfs
     run cat $BATS_TMPDIR/caseResult
     assert_line 1 "Skip"
 }
-
