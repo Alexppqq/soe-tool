@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-import json
 
 def csv2json(_fp, _key):
   ''' TODO: speicify user-defined name as primary key'''
