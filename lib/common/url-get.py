@@ -18,7 +18,7 @@ class Client(object):
     self.passwd = _passwd
 
   def url_auth(self):
-    auth_uri = "http://{0}:{1}/platform/rest/ego/auth/logon".format(url, port)
+    auth_uri = "http://{0}:{1}/{2}/auth/logon".format(url, port, schema)
     headers = {'Authorization': 'Basic {0}'.format(base64.b64encode(self.user))}
     r = self.s.get(auth_uri, auth=HTTPBasicAuth(self.user, self.passwd))
     if r.status_code != 200:
@@ -41,6 +41,7 @@ if __name__ == '__main__':
   ''')
   argparser.add_argument('-r', '--url', help='hostname or ip address', default='localhost')
   argparser.add_argument('-p', '--port', help='port number', default='8080')
+  argparser.add_argument('-s', '--schema', help='uri schema like platform/rest/ego', default='/platform/rest/ego')
   argparser.add_argument('-a', '--path', help='URI path', default='')
   argparser.add_argument('-m', '--method', help='URI method: GET, PUT, POST, DELETE', default='')
   argparser.add_argument('-n', '--name', help='EGO REST name: consumer, service', default='')
@@ -50,12 +51,13 @@ if __name__ == '__main__':
 
   url = args.url
   port = args.port
+  schema = args.schema
   path = args.path
   method = args.method
   name = args.name
   user = args.username
   passwd = args.password
 
-  uri = "http://{0}:{1}/platform/rest/ego/{2}/{3}".format(url, port, name, path)
+  uri = "http://{0}:{1}/{2}/{3}/{4}".format(url, port, schema, name, path)
   client = Client(uri, method, name, user, passwd)
   print client.url_get()
