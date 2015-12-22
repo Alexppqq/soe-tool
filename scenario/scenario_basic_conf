@@ -22,8 +22,7 @@ sc_config_policy "fifo"
 #log level
 sc_open_debug_log_4tag
 echo "$val_scenario_name - make new conf take effect"
-#sc_restart_master_by_ego_service
-sc_restart_master_by_script
+sc_restart_master_by_ego_service
 echo "$val_scenario_name - check if policy configured take effect"
 sc_verify_policy_take_effect "fifo"
 

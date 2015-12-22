@@ -8,11 +8,12 @@
 #############################################################################################################
 
 ### source user envrionment 
-source $TEST_TOOL_HOME/conf/environment.conf
+source ./conf/environment.conf
 ### source framework library function
 source $TEST_TOOL_HOME/lib/framework.func
 ### source Symphony profile
 source $EGO_TOP/profile.platform 
+
 egosh user logon -u Admin -x Admin
 
 ### validaty check,  create report and logs dir
@@ -36,7 +37,7 @@ fw_create_report_dir
 echo "please find report at $val_report_dir/testReport.txt"
 
 ### write report tile, including begin date
-fw_write_report_title
+fw_report_write_title
 
 ### create case list
 ### Note: all executable file under $1 will be treated as a case
@@ -65,9 +66,9 @@ cat $val_report_dir/caseList | while read val_case_name; do
       break
     done
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
-       fw_report_write_case_result_to_file $val_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
+       fw_report_save_case_result_in_file $val_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
     elif [[  ! -f $val_case_log_dir/caseResult ]]; then
-       fw_report_write_case_result_to_file $val_case_name "Fail" "no result return." 
+       fw_report_save_case_result_in_file $val_case_name "Fail" "no result return." 
     fi
     fw_report_write_case_result_to_report
 done

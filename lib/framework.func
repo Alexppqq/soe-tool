@@ -21,7 +21,7 @@ function ca_recover_and_exit ()
       exit 0
    fi
 }
-function fw_write_report_title ()
+function fw_report_write_title ()
 {
   dateBeginRegression=`date`
   echo "---------------------------------------------------------------------"   &>> $val_test_report
@@ -35,7 +35,7 @@ function fw_write_report_title ()
   echo -e "     Date: " $dateBeginRegression  &>> $val_test_report
   echo "---------------------------------------------------------------------"   &>> $val_test_report
 }
-function fw_report_write_case_result_to_file ()
+function fw_report_save_case_result_in_file ()
 {
   if [[ "$#" -eq 3 && -n "$1" && -n "$2" && -n "$3" ]]; then 
      echo -e "${1}\n${2}\n${3}" > $val_case_log_dir/caseResult
@@ -46,26 +46,18 @@ function fw_report_write_case_result_to_file ()
      ca_recover_and_exit 1;
   fi
 }
-function fw_report_count_line_case_result_file ()
-{
-  if [[ ! -f $val_case_log_dir/caseResult ]]; then
-     echo 0
-  else
-     echo `cat $val_case_log_dir/caseResult|wc -l`
-  fi
-}
 function fw_report_write_case_result_to_report ()
 {
-  if [[  ! -f $val_case_log_dir/caseResult ]]; then
-     echo "error: $0: file of case result ($val_case_log_dir/caseResult) cannot be found."
-     #exit 1;
+  if [[ -f $val_case_log_dir/caseResult ]]; then
+     cat $val_case_log_dir/caseResult | while read line; do
+     echo -e "$line \c" >> $val_test_report
+     done
+     echo  "" >> $val_test_report #newline
+     rm -rf $val_case_log_dir/caseResult
+  else
+     echo "error: file of case result ($val_case_log_dir/caseResult) cannot be found."
   fi
-  cat $val_case_log_dir/caseResult | while read line; do
-  echo -e "$line \c" >> $val_test_report
-  done
-  echo  "" >> $val_test_report #newline
 }
-
 function fw_report_calculate_statis ()
 {
   #could rewrite it with grep -c
@@ -111,9 +103,9 @@ function ca_recover_and_exit ()
 function fw_get_file_type ()
 {
   if [[ -z "$1" || -n $2 ]]; then
-     echo "error: $0: no file specified or too many specified."
+     echo "error: no file specified or too many specified."
   elif [[ ! -f $1 ]]; then
-     echo "error: $0: $1 is not a valid file name."
+     echo "error: $1 is not a valid file name."
   fi
   echo $1|awk -F "." '{print $NF}'
 }
