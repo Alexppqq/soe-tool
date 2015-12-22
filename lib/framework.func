@@ -278,3 +278,62 @@ function sc_verify_policy_take_effect ()
 #      echo -e "\\033[${2}m${1}\\033[0m"
 #  fi
 #}
+#!/bin/sh
+function fw_env_check ()
+{
+  #only check mandatory env
+  user_env_list="$SPARK_HOME,$HADOOP_HOME,$EGO_TOP,$SYM_MASTER_HOST,$TEST_TOOL_HOME,$JAVA_HOME,$HOST_NUM,$SLOTS_PER_HOST,$DIST_FILE_SYSTEM"
+  IFS_OLD=$IFS
+  IFS=','
+  for user_env in $user_env_list; do
+    if [[ -z $user_env ]]; then
+       echo "envrionment check failed. please make sure ./lib/environment.conf is well configured."
+    exit 1;
+#    else  #for test
+#      echo $user_env
+    fi
+  done
+  IFS=$IFS_OLD
+}
+function fw_get_ego_version ()
+{
+  ego_version=""
+  egosh_cmd=`which egosh`
+  #echo "egosh_cmd = $egosh_cmd"
+  if [[ "$egosh_cmd" == *egosh ]]; then
+     logon_status=`egosh user logon -u Admin -x Admin`
+     #echo "logon_status = $logon_status"
+     if [[ "$logon_status" == "Logged on successfully" ]]; then
+        ego_version=`egosh -V 2>&1 | awk '/Platform EGO/ {print $3}'`
+     else
+        echo "error: egosh logon failed." >&2
+     fi
+  else
+    echo "egosh command cannot be found."
+  fi 
+  echo $ego_version
+}
+function fw_get_spark_on_ego_version ()
+{
+  $SPARK_HOME/bin/spark-submit --egoversion |grep "Build"
+}
+function fw_get_spark_version ()
+{
+  spark_version=""
+  if [[ -f $SPARK_HOME/bin/spark-submit && -x $SPARK_HOME/bin/spark-submit ]]; then
+     spark_version=`$SPARK_HOME/bin/spark-submit --version 2>&1 | awk '/version/ {print $NF}'`
+  else
+     echo "error: $SPARK_HOME/bin/spark-submit does not exist or has no executable right."
+  fi
+  echo $spark_version  
+}
+function fw_get_hadoop_version ()
+{
+  hadoop_version=""
+  if [[ -f $HADOOP_HOME/bin/hadoop && -x $HADOOP_HOME/bin/hadoop ]]; then
+        hadoop_version=`$HADOOP_HOME/bin/hadoop version | awk '/Hadoop/ {print $NF}'`
+  else
+    echo "error: $HADOOP_HOME/bin/hadoop does not exist or has no executable right." >&2
+  fi
+  echo $hadoop_version
+}

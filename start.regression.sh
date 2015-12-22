@@ -14,9 +14,7 @@ source $TEST_TOOL_HOME/lib/framework.func
 ### source Symphony profile
 source $EGO_TOP/profile.platform 
 
-egosh user logon -u Admin -x Admin
-
-### validaty check,  create report and logs dir
+### parameter validaty check,  create report and logs dir
 if [[ -z "$1" || -n $2 ]]; then
    echo " Usage: There're two modes to run this tools."
    echo "        Regression  Mode:  $0 Case_Group_Dir"
@@ -30,6 +28,56 @@ elif [[ ! -x $1 ]]; then
    echo "please make sure $1 has executale right."
    exit 1
 fi
+
+### environment check
+fw_env_check
+
+### ego environment check
+val_ego_version=`fw_get_ego_version`
+if [[ -z $val_ego_version ]]; then
+   echo "EGO version is missed. please make sure EGO works well."
+   exit 1
+elif [[ $val_ego_version != 3.1.?.? && $val_ego_version != 3.3.?.? ]]; then
+   echo "EGO version $val_ego_version is not supported."
+   exit 1
+#else
+#   echo "EGO version: $val_ego_version"
+fi
+### spark command check
+val_spark_version=`fw_get_spark_version`
+if [[ -z $val_spark_version ]]; then
+   echo "Spark version is missed. please make sure Spark is well installed."
+   exit 1
+#else
+#   echo "Spark version: $val_spark_version"
+fi
+### hadoop command check
+val_hadoop_version=`fw_get_hadoop_version`
+if [[ -z $val_hadoop_version ]]; then
+   echo "Hadoop version is missed. please make sure Hadoop is well installed."
+   exit 1
+#else
+#   echo "Hadoop version: $val_hadoop_version"
+fi
+### soe command check
+val_soe_version=`fw_get_spark_on_ego_version`
+if  [[ -z $val_soe_version ]]; then
+   echo "Spark on EGO version is missed. please make sure SparkOnEgo Plugin is well installed."
+   exit 1
+elif [[ "$val_soe_version" != Build* ]]; then
+   echo "Spark on EGO version is wrong. please make sure SparkOnEgo Plugin is well installed."
+   exit 1
+#else
+#   echo "SparkOnEgo version: $val_soe_version"
+fi
+
+#info user the version message together, 
+#hadoop is skipped since it's only optional
+echo "Spark on Ego Automation tool is running on:"
+echo "      EGO version: $val_ego_version"
+echo "      Spark version: $val_spark_version"
+echo "      SparkOnEgo version: $val_soe_version"
+#   echo "Hadoop version: $val_hadoop_version" 
 
 ### create report, export val_report_dir val_test_report
 val_report_dir=""
