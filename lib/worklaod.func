@@ -3,6 +3,31 @@
 ###############################
 ###   common function  
 ###############################
+function ca_get_nonmaster_driver_status ()
+{
+   if [[ -n $1 ]]; then
+      driverStatus=`grep "Driver container state has changed to RUN" $1 | awk '{print $NF}'`
+      #echo "driver success to submit: $driverStatus"
+      echo $driverStatus
+   else
+      echo "error: $0: please specify a file."
+      #ca_recover_and_exit 1;
+      echo ""
+   fi
+}
+function ca_get_nonmaster_driver_name ()
+{
+   if [[ -n $1 ]]; then
+      driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
+      drivername="spark-driver-allaaoc-"${driverid#*=}".stdout"
+      #echo "driver name: $drivername" 
+      echo ${drivername}
+   else
+      echo "error: $0: please specify a file."
+      #ca_recover_and_exit 1;
+      echo ""
+   fi
+}
 function ca_get_akka_driver_status ()
 {
    if [[ -f $1 ]]; then
