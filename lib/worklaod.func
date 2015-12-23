@@ -5,7 +5,7 @@
 ###############################
 function ca_get_nonmaster_driver_status ()
 {
-   if [[ -n $1 ]]; then
+   if [[ -f $1 ]]; then
       driverStatus=`grep "Driver container state has changed to RUN" $1 | awk '{print $NF}'`
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
@@ -17,7 +17,7 @@ function ca_get_nonmaster_driver_status ()
 }
 function ca_get_nonmaster_driver_name ()
 {
-   if [[ -n $1 ]]; then
+   if [[ -f $1 ]]; then
       driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
       drivername="spark-driver-allaaoc-"${driverid#*=}".stdout"
       #echo "driver name: $drivername" 
@@ -365,9 +365,6 @@ function ca_assert_null_eq ()
      fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
   fi
 }
-
-#!/bin/bash
-env_test=1c
 function ca_assert_file_contain_key_word ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then

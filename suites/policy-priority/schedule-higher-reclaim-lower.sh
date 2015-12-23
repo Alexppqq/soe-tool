@@ -9,7 +9,7 @@ source $TEST_TOOL_HOME/lib/worklaod.func
 ca_filter_only_singleHost 
 
 #run scenario
-source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
+source $TEST_TOOL_HOME/scenario/scenario_priority_conf
 
 #run case
 echo "$val_case_name - begin" 
@@ -28,8 +28,8 @@ sleep 30
 echo "$val_case_name - print stable alloc tree"
 totalDemand=`expr $taskNum \* 2`
 stableTreeTitle="|---root:FIFO, demand:$totalDemand, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST"
-fristExpected="/root:FIFO, demand:$taskNum, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST, ratio:$fristPriority"
-secondExpected="/root:FIFO, demand:$taskNum, assigned:0, planned:0, ratio:$secondPriority"
+fristExpected="/root:FIFO, demand:$taskNum, assigned:0, planned:0, ratio:$fristPriority"
+secondExpected="/root:FIFO, demand:$taskNum, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST, ratio:$secondPriority"
 echo `date`
 echo "debug - stable tree"
 echo "grep -A 2 '$stableTreeTitle' $MASTER_LOG|tail -n 3"

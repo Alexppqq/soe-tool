@@ -9,14 +9,14 @@ source $TEST_TOOL_HOME/lib/worklaod.func
 ca_filter_only_singleHost 
 
 #run scenario
-source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
+source $TEST_TOOL_HOME/scenario/scenario_priority_conf
 
 #run case
 echo "$val_case_name - begin" 
 echo "$val_case_name - sbumit job"
 sleep 5
 fristPriority=5
-secondPriority=10
+secondPriority=5
 taskNum=$SLOTS_PER_HOST
 $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --conf spark.ego.priority=${fristPriority} --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR $taskNum 25000 &>> $val_case_log_dir/tmpOut1  &
 sleep 3
