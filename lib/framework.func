@@ -304,7 +304,7 @@ function fw_get_ego_version ()
      logon_status=`egosh user logon -u Admin -x Admin`
      #echo "logon_status = $logon_status"
      if [[ "$logon_status" == "Logged on successfully" ]]; then
-        ego_version=`egosh -V 2>&1 | awk '/Platform EGO/ {print $3}'`
+        ego_version=`egosh -V 2>&1 | awk '/Platform EGO/ {print $(NF-5)}'`
      else
         echo "error: egosh logon failed." >&2
      fi
