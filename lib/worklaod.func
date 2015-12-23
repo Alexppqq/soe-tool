@@ -307,64 +307,6 @@ expect "onStageCompleted: stageId(0)"
 exit
 END
 }
-function ca_stop_shuffle_service_by_ego_service ()
-{
-   currEgosh=`which egosh|grep "egosh$"`
-   if [[ -z "$currEgosh" ]]; then
-      echo "error: $0: no egosh be found."
-      ca_recover_and_exit 1;
-   fi
-   egosh service stop SPARKSS >> /dev/null
-}
-function ca_start_shuffle_service_by_ego_service ()
-{
-   currEgosh=`which egosh|grep "egosh$"`
-   if [[ -z "$currEgosh" ]]; then
-      echo "error: $0: no egosh be found."
-      ca_recover_and_exit 1;
-   fi
-   egosh service start SPARKSS >> /dev/null
-}
-function ca_start_shuffle_service_by_script ()
-{
-    if [[ "$#" -ne 1 || -z "$1" ]]; then
-     echo "usage: ./ca_start_shuffle_service_by_script  1)tmpout file."
-     ca_recover_and_exit 1;
-    fi
-    `ps -ux |grep Shuffle|grep -v grep|awk '{ print $2 }'|xargs kill -9`
-    ca_stop_shuffle_service_by_ego_service
-    ca_enable_shuffle_service
-    $SPARK_HOME/bin/spark-class org.apache.spark.deploy.ego.EGOShuffleService &>> $1 &
-}
-function ca_get_shuffle_service_status ()
-{
-    if [ -n "`ps -ux |grep -v grep|grep Shuffle`" ]; then
-        echo "shuffle service has started"
-    else
-        echo "start shuffle failed"
-        echo ""
-    fi
-}
-function ca_assert_null_ne ()
-{
-  if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
-     echo "usage: ./ca_assert_null_eq 1)variable, 2)fail reason."
-  elif [[ "$1" != "" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
-  else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
-  fi
-}
-function ca_assert_null_eq ()
-{
-  if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
-     echo "usage: ./ca_assert_null_eq 1)variable, 2)fail reason."
-  elif [[ "$1" == "" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
-  else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
-  fi
-}
 function ca_assert_file_contain_key_word ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
@@ -406,3 +348,52 @@ function ca_get_kill_driver_status ()
    fi
 }
 
+function ca_stop_shuffle_service_by_ego_service ()
+{
+   currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: $0: no egosh be found."
+      ca_recover_and_exit 1;
+   fi
+   ca_enable_shuffle_service
+   egosh service stop SPARKSS >> /dev/null
+}
+function ca_start_shuffle_service_by_ego_service ()
+{
+   currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: $0: no egosh be found."
+      ca_recover_and_exit 1;
+   fi
+   ca_enable_shuffle_service
+   egosh service start SPARKSS >> /dev/null
+}
+function ca_kill_shuffle_service_process ()
+{
+    proc_id=`ps -ux |grep Shuffle|grep -v grep`
+    if [ -n "$proc_id" ]; then
+        ps -ux |grep Shuffle|grep -v grep|awk '{ print $2 }'|xargs kill -9
+    fi
+}
+function ca_start_shuffle_service_by_script ()
+{
+    if [[ "$#" -ne 1 || -z "$1" ]]; then
+     echo "usage: ./ca_start_shuffle_service_by_script  1)tmpout file."
+     ca_recover_and_exit 1;
+    fi
+    ca_enable_shuffle_service
+    $SPARK_HOME/bin/spark-class org.apache.spark.deploy.ego.EGOShuffleService &>> $1 &
+    sleep 30
+    kill %1
+}
+#function ca_get_shuffle_service_status ()
+#{
+#    pid=`ps -ux |grep Shuffle|grep -v grep`
+#    if [ -n "$pid" ]; then
+#        echo "shuffle service has started"
+#    else
+#        echo "start shuffle failed"
+#        ca_recover_and_exit 1;
+#    fi
+#    sleep 100
+#}
