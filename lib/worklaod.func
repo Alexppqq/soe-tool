@@ -307,7 +307,7 @@ expect "onStageCompleted: stageId(0)"
 exit
 END
 }
-function ca_stop__shuffle_service_by_ego_service ()
+function ca_stop_shuffle_service_by_ego_service ()
 {
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
@@ -316,7 +316,7 @@ function ca_stop__shuffle_service_by_ego_service ()
    fi
    egosh service stop SPARKSS >> /dev/null
 }
-function ca_start__shuffle_service_by_ego_service ()
+function ca_start_shuffle_service_by_ego_service ()
 {
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
@@ -332,7 +332,7 @@ function ca_start_shuffle_service_by_script ()
      ca_recover_and_exit 1;
     fi
     `ps -ux |grep Shuffle|grep -v grep|awk '{ print $2 }'|xargs kill -9`
-    ca_stop__shuffle_service_by_ego_service
+    ca_stop_shuffle_service_by_ego_service
     ca_enable_shuffle_service
     $SPARK_HOME/bin/spark-class org.apache.spark.deploy.ego.EGOShuffleService &>> $1 &
 }
@@ -364,5 +364,48 @@ function ca_assert_null_eq ()
   else
      fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
   fi
+}
+
+#!/bin/bash
+env_test=1c
+function ca_assert_file_contain_key_word ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)file 2)keyword 3)fail reason."
+  elif [[ ! -f "$1" ]]; then 
+     echo "usage: eror, $1 is not a valid file."
+  fi
+  resultFind=`grep "$2" "$1"`
+  if [[ -n $resultFind ]]; then
+     fw_report_save_case_result_in_file $val_case_name "Pass"
+  else
+     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+  fi
+}
+function ca_assert_file_notcontain_key_word ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert_num 1)file 2)keyword 3)fail reason."
+  elif [[ ! -f "$1" ]]; then
+     echo "usage: eror, $1 is not a valid file."
+  fi
+  resultFind=`grep "$2" "$1"`
+  if [[ -z $resultFind ]]; then
+     fw_report_save_case_result_in_file $val_case_name "Pass"
+  else
+     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+  fi
+}
+function ca_get_kill_driver_status ()
+{
+   if [[ -f $1 ]]; then
+      driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
+      #echo "driver success to submit: $driverStatus"
+      echo $driverStatus
+   else
+      echo "error: $0: please specify a file."
+      #ca_recover_and_exit 1;
+      echo ""
+   fi
 }
 
