@@ -4,7 +4,6 @@
 source $TEST_TOOL_HOME/conf/environment.conf
 source $TEST_TOOL_HOME/lib/framework.func
 source $TEST_TOOL_HOME/lib/worklaod.func
-source $TEST_TOOL_HOME/gp.new
 #case filter
 ca_filter_only_singleHost
 ca_filter_only_hdfs
@@ -35,8 +34,8 @@ echo "$val_case_name - write report"
 #ca_assert_num_ge $lineOutput 1 "job not done."
 
 echo "$val_case_name - cleanup HDFS files"
-$HADOOP_HOME/bin/hadoop fs -rm -r $inputFile
-$HADOOP_HOME/bin/hadoop fs -rm -r $outputDir
+$HADOOP_HOME/bin/hadoop fs -rm -r $inputFile &>> /dev/null
+$HADOOP_HOME/bin/hadoop fs -rm -r $outputDir &>> /dev/null
 
 echo "$val_case_name - end" 
 ca_recover_and_exit 0;
