@@ -165,7 +165,7 @@ function sc_update_to_spark_default ()
    envName=$1
    envValue=$2
    #below grep cmd must have a spcace in the end
-   OLD_SETTING_DEF=`cat $SPARK_CONF_DIR/spark-defaults.conf | grep "^$envName "`
+   OLD_SETTING_DEF=$(grep "^$envName" $SPARK_CONF_DIR/spark-defaults.conf || echo "")
    if [ -z "$OLD_SETTING_DEF" ]; then
        lines=`cat $SPARK_CONF_DIR/spark-defaults.conf|wc -l`
        if [ $lines -ne 0 ]; then
