@@ -19,7 +19,7 @@ function ca_get_nonmaster_driver_name ()
 {
    if [[ -f $1 ]]; then
       driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
-      drivername="spark-driver-allaaoc-"${driverid#*=}".stdout"
+      drivername="spark-driver-alloc-"${driverid#*=}".stdout"
       #echo "driver name: $drivername" 
       echo ${drivername}
    else
