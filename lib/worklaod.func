@@ -397,3 +397,20 @@ function ca_start_shuffle_service_by_script ()
 #    fi
 #    sleep 100
 #}
+function ca_assert_file_exist_in_hdfs ()
+{
+  if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
+     echo "usage: ./ca_assert 1)Dir path to exist file 2)key word of file name 3)fail reason."
+  fi
+  outputDir=$1
+  filename=$2
+  resultFind=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir`
+  if [[ $resultFind =~ "$filename" ]]; then
+     fw_report_save_case_result_in_file $val_case_name "Pass"
+  #   echo "pass"
+  else
+     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+  #  echo "failed"
+  fi
+}
+
