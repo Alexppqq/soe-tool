@@ -558,7 +558,7 @@ function ca_kill_spark_app ()
   if [ -z $driver_id ]; then
     echo "the driver id is blank"
     return 1
-  }
+  fi
 
   $SPARK_HOME/bin/spark-submit --kill $driver_id --master $master
   [ $? -eq 0 ] || echo ""
