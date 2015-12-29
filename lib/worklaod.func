@@ -209,36 +209,33 @@ function ca_filter_only_multipleHost ()
 }
 function ca_spark_shell_run_sleep ()
 {
-if [[ "$#" -ne 3 ]]; then
-  echo "usage: ./0 taskNumber taskRunningTime taskType\nvalid value of taskType is 'sync' and 'async'"
-  exit 1
-fi
+  if [[ "$#" -ne 3 ]]; then
+    echo -e "usage: $0 taskNumber taskRunningTime taskType <end_condition>\n  \
+                    the valid value of taskType is 'sync' and 'async'"
+    return 1
+  fi
 
-taskNum=$1
-taskRunTime=$2
-taskExpTimeout=`expr ${2} \* 3 / 1000 + 30 `
-#echo $taskExpTimeout
-if [[ "$3" == "async" ]]; then
-   taskType="countAsync"
-elif [[ "$3" == "sync" ]]; then
-   taskType="count"
-else
-   echo "error: valid value of taskType is 'sync' and 'async'."
-   exit 1
-fi
+  local taskNum=$1
+  local taskRunTime=$2
+  if [[ "$3" == "async" ]]; then
+     taskType="countAsync"
+  elif [[ "$3" == "sync" ]]; then
+     taskType="count"
+  else
+     echo "error: valid value of taskType is 'sync' and 'async'."
+     return 1
+  fi
+  local end_condition=${4:-"onStageCompleted: stageId(0)"}
 
-
-expect<<- END
-spawn $SPARK_HOME/bin/spark-shell
-set timeout 25
-expect "scala>"
-send "var numTasks = ${taskNum}\n"
-set timeout 3
-expect "scala>"
-send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(${taskRunTime}); i }.${taskType}()\n"
-set timeout ${taskExpTimeout}
-expect "onStageCompleted: stageId(0)"
-exit
+  expect<<- END
+  spawn $SPARK_HOME/bin/spark-shell
+  set timeout -1
+  expect "scala>"
+  send "var numTasks = ${taskNum}\n"
+  expect "scala>"
+  send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(${taskRunTime}); i }.${taskType}()\n"
+  expect "${end_condition}"
+  exit
 END
 }
 function ca_spark_shell_run_wordcount ()
@@ -413,6 +410,41 @@ function ca_assert_file_exist_in_hdfs ()
   #  echo "failed"
   fi
 }
+
+function ca_find_keyword_timeout ()
+{
+  if [ $# -le 2 ]; then
+    echo "usage: $0 <file> <keyword> <timeout>"
+    return -1
+  fi
+
+  local filename=${1:-''}
+  local keyword=${2:-''}
+  local timeout=${3:-1}
+
+  if [ ! -f $filename ]; then
+    echo "the file $filename does not exist"
+    return 1
+  fi
+
+  if [ -z "$keyword" ]; then
+    echo "the keyword $keyword should not blank"
+    return 1
+  fi
+
+  if [ $timeout -le 0 ]; then
+    echo "the timeout $timeout should be greate and equal to 1"
+    return 1
+  fi
+
+  while [ $timeout -ne 0 ];do
+    grep "${keyword}" ${filename}
+    [ $? -eq 0 ] && break
+    sleep 1
+    timeout=$(( $timeout - 1 ))
+  done
+}
+
 function ca_kill_process ()
 {
   if [[ "$#" -ne 1 || -z "$1" ]]; then
@@ -432,7 +464,7 @@ function ca_get_nonmaster_driver_stderr ()
    if [[ -f $1 ]]; then
       driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
       drivername="spark-driver-alloc-"${driverid#*=}".stderr"
-      #echo "driver name: $drivername" 
+      #echo "driver name: $drivername"
       echo ${drivername}
    else
       echo "error: $0: please specify a file."

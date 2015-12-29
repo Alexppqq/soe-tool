@@ -1,27 +1,27 @@
 #!/usr/bin/env bats
 
 load $TEST_TOOL_HOME/test/helpers/assertions/all
-load $TEST_TOOL_HOME/scenario/scenario_minimum_conf
+load $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 load $TEST_TOOL_HOME/lib/worklaod.func
 
 setup() {
-  sc_backup_spark_conf
+  TMP_FILE="${TEST_TOOL_HOME}/test/tmp/case_spark_shell.out"
+  touch $TMP_FILE
 }
 
 teardown() {
-  ca_recover_and_exit
+  [ -f $TMP_FILE ] && rm -f $TMP_FILE
 }
 
 @test "set spark.ego.executor.idle.timeout=10 via cmd line only effect for spark shell or pyspark command" {
-  ca_update_to_spark_log4j "log4j.rootCategory" INFO
-  ca_update_to_spark_log4j "log4j.appender.console.layout.ConversionPattern" "%r %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n"
   sc_update_to_spark_default "spark.ego.executor.idle.timeout" 10
-  ca_spark_shell_run_sleep 1 3 'sync' 2>> $BATS_TMPDIR/$BATS_TEST_NAME.out
-  start_time = $( cat $BATS_TMPDIR/$BATS_TEST_NAME.out | grep 'onStageCompleted: stageId' | awk '{print $1}')
-  end_time = $(cat $BATS_TMPDIR/$BATS_TEST_NAME.out | grep 'EGODeploySchedule: Cleanup executor' | awk '{print $1}')
-  val = $(expr $end_time - $start_time)
-  [ $val -ge 10000 ] && [ $val -le 12000 ]
-  [ $status -eq 0 ]
+  ca_spark_shell_run_sleep 1 3 sync >> $TMP_FILE 3>&1
+  ca_find_keyword_timeout $TMP_FILE "onStageCompleted: stageId" 30
+  start_time=$(grep 'onStageCompleted: stageId' ${TMP_FILE} | awk '{print $(NF-6)}')
+  ca_find_keyword_timeout $TMP_FILE "EGODeployScheduler: Cleanup executor" 30
+  end_time=$(grep 'EGODeployScheduler: Cleanup executor' ${TMP_FILE} | awk '{print $1}')
+  val=$(( $end_time - $start_time ))
+  [ $val -ge 10000 ] && [ $val -le 12000 ] || [ $status -eq 0 ]
 }
 
 @test "set spark.ego.executor.slots.max=10 via cmd line" {
