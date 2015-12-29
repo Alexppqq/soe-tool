@@ -472,3 +472,24 @@ function ca_get_nonmaster_driver_stderr ()
       echo ""
    fi
 }
+function ca_keep_check_in_file
+{
+if [[ "$#" -ne 4 || -z "$1" || ! -f "$2" || -z "$3" || -z "$4" ]]; then
+     echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)inteval_sec, 4)timeout_sec."
+     ca_recover_and_exit 1
+fi
+resultFind=`grep "$1" "$2"`
+SECONDS=0
+while [[ "$SECONDS" -le "$4" && -z "$resultFind" ]]; do
+    echo "$SECONDS"
+    sleep $3
+    resultFind=`grep "$1" "$2"`
+done
+
+if [ -n "$resultFind" ]; then
+    echo "$1 has found in $2"
+else
+    echo "Timeout! Can't find $1 in $2 in $4 secs "
+    ca_recover_and_exit
+fi
+}
