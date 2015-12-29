@@ -38,4 +38,5 @@ echo "$val_case_name - end"
 #curl -d "" http://$SYM_MASTER_HOST:6066/v1/submissions/kill/$drivername1 &>> /dev/null
 #curl -d "" http://$SYM_MASTER_HOST:6066/v1/submissions/kill/$drivername2 &>> /dev/null
 sleep 25
+rm -rf $TEST_TOOL_HOME/data/alloc.csv
 ca_recover_and_exit 0;
