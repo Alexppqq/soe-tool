@@ -528,3 +528,39 @@ echo "success;none"
 return 0;
 }
 
+function ca_get_driver_id ()
+{
+  if [ $# -ne 1 ]; then
+    echo "usage: $0 <output>"
+    return 1
+  fi
+
+  local file=${1:-''}
+  local keyword="ClientEndpoint: Driver successfully submitted"
+  if [ ! -f $file ]; then
+    echo "the file $file does not exists"
+    return 1
+  fi
+
+  echo $(ca_find_keyword_timeout $file $keyword 30  |  awk '{print $NF}')
+}
+
+function ca_kill_spark_app ()
+{
+  if [ $# -ne 2 ]; then
+    echo "usage: $0 <driver id> <master:port>
+    return 1
+  fi
+
+  local driver_id=${1:-''}
+  local master=${2:-'${SYM_MASTER_HOST}:6066'} # port should be rest port, default is 6066
+
+  if [ -z $driver_id ]; then
+    echo "the driver id is blank"
+    return 1
+  }
+
+  $SPARK_HOME/bin/spark-submit --kill $driver_id --master $master
+  [ $? -eq 0 ] || echo ""
+}
+
