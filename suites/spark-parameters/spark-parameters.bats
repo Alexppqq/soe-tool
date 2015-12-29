@@ -2,7 +2,7 @@
 
 load $TEST_TOOL_HOME/test/helpers/assertions/all
 load $TEST_TOOL_HOME/scenario/scenario_minimun_conf
-load $TEST_TOOL_HOME/lib/worklaod.func
+load $TEST_TOOL_HOME/lib/workload.func
 
 setup() {
   TMP_FILE="${TEST_TOOL_HOME}/test/tmp/case_spark_shell.out"

@@ -3,7 +3,7 @@
 
 source $TEST_TOOL_HOME/conf/environment.conf
 source $TEST_TOOL_HOME/lib/framework.func
-source $TEST_TOOL_HOME/lib/worklaod.func
+source $TEST_TOOL_HOME/lib/workload.func
 
 ca_filter_only_singleHost    # signle host cluster only, skip if HOST_NUM in ./conf/environment.conf does not equal to 1
 

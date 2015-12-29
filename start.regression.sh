@@ -10,9 +10,7 @@
 ### source user envrionment 
 source ./conf/environment.conf
 ### source framework library function
-source $TEST_TOOL_HOME/lib/framework.func
-### source Symphony profile
-source $EGO_TOP/profile.platform 
+source ./lib/framework.func
 
 ### parameter validaty check,  create report and logs dir
 if [[ -z "$1" || -n $2 ]]; then
@@ -31,6 +29,9 @@ fi
 
 ### environment check
 fw_env_check
+
+### source EGO profile
+source $EGO_TOP/profile.platform
 
 ### ego environment check
 val_ego_version=`fw_get_ego_version`

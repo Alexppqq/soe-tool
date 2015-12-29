@@ -3,8 +3,8 @@
 #source env
 source $TEST_TOOL_HOME/conf/environment.conf
 source $TEST_TOOL_HOME/lib/framework.func
-source $TEST_TOOL_HOME/lib/worklaod.func
-source $TEST_TOOL_HOME/lib/worklaod.func.ad1223
+source $TEST_TOOL_HOME/lib/workload.func
+source $TEST_TOOL_HOME/lib/workload.func.ad1223
 #case filter
 ca_filter_only_singleHost 
 

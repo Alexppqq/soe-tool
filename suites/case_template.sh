@@ -10,12 +10,12 @@
 # Part 1: source cluster environment and library
 # ./conf/environment.conf : cluster envirnment defined by user
 # ./lib/framework.func : functions used by framework and scenario
-# ./lib/worklaod.func : functions used by case
+# ./lib/workload.func : functions used by case
 # other library case may needed
 ################################################################################################
 source $TEST_TOOL_HOME/conf/environment.conf
 source $TEST_TOOL_HOME/lib/framework.func
-source $TEST_TOOL_HOME/lib/worklaod.func
+source $TEST_TOOL_HOME/lib/workload.func
 
 ################################################################################################
 # Part 2: (Optional) case filter
@@ -68,7 +68,7 @@ lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"|wc -l`
 # case result of assert function is either "Pass" or  "Fail". if fail, a fail reason is needed.
 # you should pass 1) value you get 2) value you expect 3) reason if failed to it
 # libary supply mulitple asert functions to meet mulitple judgement requriements
-# please use `grep "function" lib/worklaod.func | grep "ca_assert"` to find them
+# please use `grep "function" lib/workload.func | grep "ca_assert"` to find them
 #
 # besides,
 # if case exits unexpectedly before assert, framework will treated it as "Fail" and reason is "no result return"

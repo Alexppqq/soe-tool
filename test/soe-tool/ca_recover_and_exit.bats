@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 load ../helpers/assertions/all
-load $BATS_CWD/lib/worklaod.func
+load $BATS_CWD/lib/workload.func
 load $BATS_CWD/lib/framework.func
 
 setup() {
