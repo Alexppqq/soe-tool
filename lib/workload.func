@@ -548,7 +548,7 @@ function ca_get_driver_id ()
 function ca_kill_spark_app ()
 {
   if [ $# -ne 2 ]; then
-    echo "usage: $0 <driver id> <master:port>
+    echo "usage: $0 <driver id> <master:port>"
     return 1
   fi
 

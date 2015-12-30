@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load $TEST_TOOL_HOME/test/helpers/assertions/all
+load $TEST_TOOL_HOME/test/helpers/assertions/all.bash
 load $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 load $TEST_TOOL_HOME/lib/workload.func
 
@@ -73,7 +73,7 @@ teardown() {
   [ "$ego_client_nameA" = "$ego_client_nameB" ]
 }
 
-}@test "set spark.ego.priority=100 via cmd line" {
+@test "set spark.ego.priority=100 via cmd line" {
   run $SPARK_HOME/bin/spark-submit --deploy-mode client \
                                    --class spark.test.parameter.parameterTest \
                                    --conf "spark.ego.priority=100" \
