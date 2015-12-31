@@ -180,7 +180,20 @@ function sc_update_to_spark_default ()
        sed -i --follow-symlinks "\$a$envName $envValue" $SPARK_CONF_DIR/spark-defaults.conf
    fi
 }
-
+function sc_comment_out_in_spark_default ()
+{
+  if [[ "$#" -ne 1 || -z "$1" ]]; then
+      echo "usage: $0 envName"
+      echo "please make sure use it after backup customer's conf"
+      ca_recover_and_exit 1;
+  fi
+  envName=$1
+  OLD_SETTING_DEF=$(grep "^$envName" $SPARK_CONF_DIR/spark-defaults.conf || echo "")
+  if [ -n "$OLD_SETTING_DEF" ]; then
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks -e "s#^$envName #\#$envName #g" $SPARK_CONF_DIR/spark-defaults.conf
+  fi
+}
 function ca_update_to_spark_log4j ()
 {
    if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
