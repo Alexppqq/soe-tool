@@ -209,7 +209,7 @@ function ca_filter_only_multipleHost ()
 }
 function ca_spark_shell_run_sleep ()
 {
-  if [[ "$#" -ne 3 ]]; then
+  if [[ "$#" -le 3 ]]; then
     echo -e "usage: $0 taskNumber taskRunningTime taskType <end_condition>\n  \
                     the valid value of taskType is 'sync' and 'async'"
     return 1
@@ -542,7 +542,7 @@ function ca_get_driver_id ()
     return 1
   fi
 
-  echo $(ca_find_keyword_timeout $file $keyword 30  |  awk '{print $NF}')
+  echo $(ca_find_keyword_timeout "$file" "$keyword" 30  |  awk '{print $NF}')
 }
 
 function ca_kill_spark_app ()
@@ -553,7 +553,7 @@ function ca_kill_spark_app ()
   fi
 
   local driver_id=${1:-''}
-  local master=${2:-'${SYM_MASTER_HOST}:6066'} # port should be rest port, default is 6066
+  local master="spark://${2:-'${SYM_MASTER_HOST}:6066'}" # port should be rest port, default is 6066
 
   if [ -z $driver_id ]; then
     echo "the driver id is blank"
