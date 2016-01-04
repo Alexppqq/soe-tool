@@ -25,7 +25,7 @@ echo "$val_case_name - driver name: $drivername"
 [ -z $drivername ] &&   exit 1
 
 ca_keep_check_in_file "Starting task" "$SPARK_HOME/work/$drivername/stderr" "1" "40" 
-ca_kill_process "EGOClusterDriverWrapper"
+ca_kill_process_by_SPARK_HOME "EGOClusterDriverWrapper"
 ca_keep_check_in_file "Job 0 failed" "$SPARK_HOME/work/$drivername/stderr" "1" "40"
 
 ca_assert_file_contain_key_word $SPARK_HOME/work/$drivername/stderr "Job 0 failed" "cluster kill driver killed app failed"

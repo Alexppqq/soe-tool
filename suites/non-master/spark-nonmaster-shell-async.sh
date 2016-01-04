@@ -15,7 +15,7 @@ source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf
 echo "$val_case_name - begin" 
 echo "$val_case_name - sbumit job"
 # 3 tasks each run 10000 ms
-ca_spark_shell_run_sleep 3 10000 async &>> $val_case_log_dir/tmpOut 
+ca_spark_shell_run_sleep 3 10000 async "onStageCompleted: stageId(0)"  &>> $val_case_log_dir/tmpOut 
 sleep 5
 #tmpOut=`ca_find_by_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)"`
 #lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`

@@ -21,7 +21,7 @@ driverStatus=`ca_get_nonmaster_driver_status $val_case_log_dir/tmpOut`
 echo "$val_case_name - driver status: $driverStatus"
 [ -z $driverStatus ] &&   exit 1
 #driverid=`ca_get_nonmaster_driver_id $val_case_log_dir/tmpOut`
-drivername=`ca_get_nonmaster_driver_name $val_case_log_dir/tmpOut`
+drivername=`ca_get_nonmaster_driver_stdout $val_case_log_dir/tmpOut`
 echo "$val_case_name - driver name: $drivername" 
 [ -z $drivername ] &&   exit 1
 sleep 20

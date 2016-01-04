@@ -14,13 +14,7 @@ source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 #run case
 echo "$val_case_name - begin" 
 echo "$val_case_name - sbumit job"
-ca_kill_shuffle_service_process
-sleep 3
-ca_stop_shuffle_service_by_ego_service
-sleep 7
 ca_start_shuffle_service_by_ego_service
-sleep 10
-
 egosh service list -ll > $TEST_TOOL_HOME/data/service.csv
 shuffle=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/service.csv "SERVICE,SPARKSS" 'INST_STATE' )
 echo $shuffle

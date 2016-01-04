@@ -14,13 +14,11 @@ echo "$val_case_name - begin"
 echo "$val_case_name - sbumit job"
 
 sc_update_to_spark_env "SPARK_EGO_LOGSERVICE_PORT" "28083"
-ca_kill_shuffle_service_process
-ca_stop_shuffle_service_by_ego_service
 ca_start_shuffle_service_by_script "$val_case_log_dir/tmpOut"
 
 sleep 25
 ca_assert_file_contain_key_word $val_case_log_dir/tmpOut "28083" "logservice port 28083 failed"
 echo "$val_case_name - write report"
 echo "$val_case_name - end" 
-ca_kill_shuffle_service_process
+ca_kill_process_by_SPARK_HOME "Shuffle"
 ca_recover_and_exit 0;

@@ -15,7 +15,20 @@ function ca_get_nonmaster_driver_status ()
       echo ""
    fi
 }
-function ca_get_nonmaster_driver_name ()
+function ca_get_nonmaster_driver_stderr ()
+{
+   if [[ -f $1 ]]; then
+      driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
+      drivername="spark-driver-alloc-"${driverid#*=}".stderr"
+      #echo "driver name: $drivername"
+      echo ${drivername}
+   else
+      echo "error: $0: please specify a file."
+      #ca_recover_and_exit 1;
+      echo ""
+   fi
+}
+function ca_get_nonmaster_driver_stdout ()
 {
    if [[ -f $1 ]]; then
       driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
@@ -357,6 +370,8 @@ function ca_stop_shuffle_service_by_ego_service ()
 }
 function ca_start_shuffle_service_by_ego_service ()
 {
+   ca_kill_shuffle_service_process
+   sleep 3
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
       echo "error: $0: no egosh be found."
@@ -364,12 +379,13 @@ function ca_start_shuffle_service_by_ego_service ()
    fi
    ca_enable_shuffle_service
    egosh service start SPARKSS >> /dev/null
+   sleep 8
 }
 function ca_kill_shuffle_service_process ()
 {
-    proc_id=`ps -ux |grep Shuffle|grep -v grep`
+    proc_id=`ps -ux |grep Shuffle|grep -v grep|grep $SPARK_HOME`
     if [ -n "$proc_id" ]; then
-        ps -ux |grep Shuffle|grep -v grep|awk '{ print $2 }'|xargs kill -9
+        ps -ux |grep Shuffle|grep -v grep|grep $SPARK_HOME|awk '{ print $2 }'|xargs kill -9
     fi
 }
 function ca_start_shuffle_service_by_script ()
@@ -383,17 +399,6 @@ function ca_start_shuffle_service_by_script ()
     sleep 30
     kill %1
 }
-#function ca_get_shuffle_service_status ()
-#{
-#    pid=`ps -ux |grep Shuffle|grep -v grep`
-#    if [ -n "$pid" ]; then
-#        echo "shuffle service has started"
-#    else
-#        echo "start shuffle failed"
-#        ca_recover_and_exit 1;
-#    fi
-#    sleep 100
-#}
 function ca_assert_file_exist_in_hdfs ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
@@ -444,34 +449,35 @@ function ca_find_keyword_timeout ()
     timeout=$(( $timeout - 1 ))
   done
 }
-
-function ca_kill_process ()
+function ca_kill_process_by_SPARK_HOME ()
 {
   if [[ "$#" -ne 1 || -z "$1" ]]; then
      echo "usage: ./ca_kill_process 1)Key for process to be killed."
   fi
-  proc_id=`ps -ux |grep "$1"|grep -v grep`
+  proc_id=`ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME`
     if [ -n "$proc_id" ]; then
-        ps -ux |grep "$1"|grep -v grep|awk '{ print $2 }'|xargs kill
+        ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME|awk '{ print $2 }'|xargs kill
         echo "$1 has been killed"
     else
         echo "$1 has not existed"
         ca_recover_and_exit 1;
     fi
 }
-function ca_get_nonmaster_driver_stderr ()
+function ca_kill_process_by_EGO_TOP ()
 {
-   if [[ -f $1 ]]; then
-      driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
-      drivername="spark-driver-alloc-"${driverid#*=}".stderr"
-      #echo "driver name: $drivername"
-      echo ${drivername}
-   else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
-   fi
+  if [[ "$#" -ne 1 || -z "$1" ]]; then
+     echo "usage: ./ca_kill_process 1)Key for process to be killed."
+  fi
+  proc_id=`ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP`
+    if [ -n "$proc_id" ]; then
+        ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP|awk '{ print $2 }'|xargs kill
+        echo "$1 has been killed"
+    else
+        echo "$1 has not existed"
+        ca_recover_and_exit 1;
+    fi
 }
+
 function ca_keep_check_in_file
 {
 if [[ "$#" -ne 4 || -z "$1" || ! -f "$2" || -z "$3" || -z "$4" ]]; then
@@ -481,7 +487,7 @@ fi
 resultFind=`grep "$1" "$2"`
 SECONDS=0
 while [[ "$SECONDS" -le "$4" && -z "$resultFind" ]]; do
-    echo "$SECONDS"
+#    echo "$SECONDS"
     sleep $3
     resultFind=`grep "$1" "$2"`
 done
