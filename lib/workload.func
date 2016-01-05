@@ -18,7 +18,7 @@ function ca_get_nonmaster_driver_status ()
 function ca_get_nonmaster_driver_stderr ()
 {
    if [[ -f $1 ]]; then
-      driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
+      driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
       drivername="spark-driver-alloc-"${driverid#*=}".stderr"
       #echo "driver name: $drivername"
       echo ${drivername}
@@ -31,7 +31,7 @@ function ca_get_nonmaster_driver_stderr ()
 function ca_get_nonmaster_driver_stdout ()
 {
    if [[ -f $1 ]]; then
-      driverid=`grep "Got allocation id=" $1 | awk '{ print $7 }'`
+      driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
       drivername="spark-driver-alloc-"${driverid#*=}".stdout"
       #echo "driver name: $drivername" 
       echo ${drivername}
