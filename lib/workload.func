@@ -68,7 +68,7 @@ function ca_get_restapi_driver_status ()
 function ca_get_akka_driver_name ()
 {
    if [[ -f $1 ]]; then
-      drivername=`grep "driver-" $1 | awk '/State of/  {print $7}'`
+      drivername=`grep "driver-" $1 | awk '/State of/  {print $(NF-2)}'`
       #echo "driver name: $drivername" 
       echo $drivername
    else
