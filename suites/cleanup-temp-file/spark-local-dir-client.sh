@@ -24,8 +24,7 @@ sleep 10
 echo "$val_case_name - begin" 
 echo "$val_case_name - sbumit job"
 $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 10000 &>> $val_case_log_dir/tmpOut &
-
-sleep 30
+ca_keep_check_in_file "Job done" "$val_case_log_dir/tmpOut" "1" "40"
 
 #check clean after app done
 cleanup_check_result=`ca_check_cleanup $tmp_cleanup_dir`
