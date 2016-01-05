@@ -12,13 +12,12 @@ teardown() {
 }
 
 @test "find key word fail for invalid input" {
-        run ca_find_by_key_word
-        test $status = 1  
-        assert_output_contains  'please specify key word and file to look up'
+        run ca_find_by_key_word   "sfaf"  ""
+        assert_output_contains  'please specify file name and key word to look up'
 }
 @test "find key word sucessfully" {
         run ca_find_by_key_word $BATS_TMPNAME "key word"
-        test $status = 0
+        assert_output_contains  'key word'
 }
 
 

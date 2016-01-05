@@ -13,11 +13,10 @@ teardown() {
 
 @test "get_akka_driver_status fail for null input" {
 	run ca_get_akka_driver_status
-	test $status = 1  
 	assert_output_contains  'please specify a file'
 }
 @test "get_akka_driver_status sucessfully" {
         run ca_get_akka_driver_status $BATS_TMPNAME
-        test $status = 0
+        assert_output_contains 'RUNNING'
 }
 
