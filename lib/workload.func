@@ -363,7 +363,7 @@ function ca_stop_shuffle_service_by_ego_service ()
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
       echo "error: $0: no egosh be found."
-      ca_recover_and_exit 1;
+      #ca_recover_and_exit 1;
    fi
    ca_enable_shuffle_service
    egosh service stop SPARKSS >> /dev/null
@@ -375,7 +375,7 @@ function ca_start_shuffle_service_by_ego_service ()
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
       echo "error: $0: no egosh be found."
-      ca_recover_and_exit 1;
+      #ca_recover_and_exit 1;
    fi
    ca_enable_shuffle_service
    egosh service start SPARKSS >> /dev/null
@@ -392,7 +392,7 @@ function ca_start_shuffle_service_by_script ()
 {
     if [[ "$#" -ne 1 || -z "$1" ]]; then
      echo "usage: ./ca_start_shuffle_service_by_script  1)tmpout file."
-     ca_recover_and_exit 1;
+#     #ca_recover_and_exit 1;
     fi
     ca_enable_shuffle_service
     $SPARK_HOME/bin/spark-class org.apache.spark.deploy.ego.EGOShuffleService &>> $1 &
@@ -460,7 +460,7 @@ function ca_kill_process_by_SPARK_HOME ()
         echo "$1 has been killed"
     else
         echo "$1 has not existed"
-        ca_recover_and_exit 1;
+        #ca_recover_and_exit 1;
     fi
 }
 function ca_kill_process_by_EGO_TOP ()
@@ -474,7 +474,7 @@ function ca_kill_process_by_EGO_TOP ()
         echo "$1 has been killed"
     else
         echo "$1 has not existed"
-        ca_recover_and_exit 1;
+        #ca_recover_and_exit 1;
     fi
 }
 
@@ -482,7 +482,7 @@ function ca_keep_check_in_file
 {
 if [[ "$#" -ne 4 || -z "$1" || ! -f "$2" || -z "$3" || -z "$4" ]]; then
      echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)inteval_sec, 4)timeout_sec."
-     ca_recover_and_exit 1
+     #ca_recover_and_exit 1
 fi
 resultFind=`grep "$1" "$2"`
 SECONDS=0
@@ -493,10 +493,10 @@ while [[ "$SECONDS" -le "$4" && -z "$resultFind" ]]; do
 done
 
 if [ -n "$resultFind" ]; then
-    echo "$1 has found in $2"
+    echo "$1 has been found in $2"
 else
     echo "Timeout! Can't find $1 in $2 in $4 secs "
-    ca_recover_and_exit
+    #ca_recover_and_exit
 fi
 }
 function ca_check_cleanup ()
