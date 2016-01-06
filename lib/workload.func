@@ -10,9 +10,8 @@ function ca_get_nonmaster_driver_status ()
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_nonmaster_driver_status: please specify a file." 1>&2
+      return 1
    fi
 }
 function ca_get_nonmaster_driver_stderr ()
@@ -23,9 +22,8 @@ function ca_get_nonmaster_driver_stderr ()
       #echo "driver name: $drivername"
       echo ${drivername}
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_nonmaster_driver_stderr: please specify a file."  1>&2
+      return 1;
    fi
 }
 function ca_get_nonmaster_driver_stdout ()
@@ -36,9 +34,8 @@ function ca_get_nonmaster_driver_stdout ()
       #echo "driver name: $drivername" 
       echo ${drivername}
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_nonmaster_driver_stdout: please specify a file." 1>&2
+      return 1;
    fi
 }
 function ca_get_akka_driver_status ()
@@ -48,9 +45,8 @@ function ca_get_akka_driver_status ()
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_akka_driver_status: please specify a file." 1>&2
+      return 1;
    fi 
 } 
 function ca_get_restapi_driver_status ()
@@ -60,9 +56,8 @@ function ca_get_restapi_driver_status ()
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_restapi_driver_status: please specify a file." 1>&2
+      return 1;
    fi
 }
 function ca_get_akka_driver_name ()
@@ -72,9 +67,8 @@ function ca_get_akka_driver_name ()
       #echo "driver name: $drivername" 
       echo $drivername
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_akka_driver_name: please specify a file." 1>&2
+      return 1;
    fi
 }
 function ca_get_restapi_driver_name ()
@@ -84,17 +78,15 @@ function ca_get_restapi_driver_name ()
      #echo "driver name: $drivername" 
      echo $drivername
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_restapi_driver_name: please specify a file." 1>&2
+      return 1;
    fi
 }
 function ca_find_by_key_word ()
 {
    if [[ ! -f $1 || -z $2 ]]; then
-      echo "error: $0: please specify file name and key word to look up."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_find_by_key_word: please specify file name and key word to look up." 1>&2
+      return 1;
    fi
    findresult=`grep "$2" $1`
    #echo "find by key word: $findresult"
@@ -103,7 +95,7 @@ function ca_find_by_key_word ()
 function ca_assert_num_gt ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_gt 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_gt 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -gt "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass" 
   else
@@ -113,7 +105,7 @@ function ca_assert_num_gt ()
 function ca_assert_num_ge ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_ge 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_ge 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -ge "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass" 
   else
@@ -123,7 +115,7 @@ function ca_assert_num_ge ()
 function ca_assert_num_eq ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_eq 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_eq 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -eq "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass" 
   else
@@ -133,7 +125,7 @@ function ca_assert_num_eq ()
 function ca_assert_num_ne ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_ne 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_ne 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -ne "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass" 
   else
@@ -143,7 +135,7 @@ function ca_assert_num_ne ()
 function ca_assert_num_lt ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_lt 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_lt 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -lt "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass"
   else
@@ -153,7 +145,7 @@ function ca_assert_num_lt ()
 function ca_assert_num_le ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_num_le 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_num_le 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -le "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass"
   else 
@@ -163,7 +155,7 @@ function ca_assert_num_le ()
 function ca_assert_str_eq ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_str_eq 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_str_eq 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" == "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass"
   else
@@ -173,7 +165,7 @@ function ca_assert_str_eq ()
 function ca_assert_str_ne ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_str_ne 1)variable, 2)threshold, 3)fail reason."
+     echo "usage: ./ca_assert_str_ne 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" != "$2" ]]; then
      fw_report_save_case_result_in_file $val_case_name "Pass"
   else
@@ -183,7 +175,7 @@ function ca_assert_str_ne ()
 function ca_case_filter_equal ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_case_filter_equal  1)val_of_ENV, 2)value_Expected, 3)skip reason."
+     echo "usage: ./ca_case_filter_equal  1)val_of_ENV, 2)value_Expected, 3)skip reason." 1>&2
   elif [[ "$1" != "$2" ]]; then
      echo "case skiped, $3."
      fw_report_save_case_result_in_file $val_case_name "Skip" "$3"
@@ -195,7 +187,7 @@ function ca_case_filter_equal ()
 function ca_case_filter_notequal ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_case_filter_notequal  1)val_of_ENV, 2)value_notExpected, 3)skip reason."
+     echo "usage: ./ca_case_filter_notequal  1)val_of_ENV, 2)value_notExpected, 3)skip reason." 1>&2
   elif [[ "$1" == "$2" ]]; then
      echo "case skiped, $3."
      fw_report_save_case_result_in_file $val_case_name "Skip" "$3"
@@ -223,8 +215,8 @@ function ca_filter_only_multipleHost ()
 function ca_spark_shell_run_sleep ()
 {
   if [[ "$#" -le 3 ]]; then
-    echo -e "usage: $0 taskNumber taskRunningTime taskType <end_condition>\n  \
-                    the valid value of taskType is 'sync' and 'async'"
+    echo -e "usage: ca_spark_shell_run_sleep taskNumber taskRunningTime taskType <end_condition>\n  \
+                    the valid value of taskType is 'sync' and 'async'"  1>&2
     return 1
   fi
 
@@ -235,7 +227,7 @@ function ca_spark_shell_run_sleep ()
   elif [[ "$3" == "sync" ]]; then
      taskType="count"
   else
-     echo "error: valid value of taskType is 'sync' and 'async'."
+     echo "error: valid value of taskType is 'sync' and 'async'." 1>&2
      return 1
   fi
   local end_condition=${4:-"onStageCompleted: stageId(0)"}
@@ -254,7 +246,7 @@ END
 function ca_spark_shell_run_wordcount ()
 {
 if [[ "$#" -ne 2 ]]; then
-  echo "usage: ./0 input output"
+  echo "usage: ./0 input output"  1>&2
   exit 1
 fi
 
@@ -292,7 +284,7 @@ END
 function ca_spark_pyspark_run_sleep ()
 {
 if [[ "$#" -ne 2 ]]; then
-  echo "usage: ./0 taskNumber taskRunningTime"
+  echo "usage: ca_spark_pyspark_run_sleep taskNumber taskRunningTime" 1>&2
   exit 1
 fi
 
@@ -320,9 +312,11 @@ END
 function ca_assert_file_contain_key_word ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_file_contain_key_word 1)file 2)keyword 3)fail reason."
+     echo "usage: ./ca_assert_file_contain_key_word 1)file 2)keyword 3)fail reason." 1>&2
+     return 1
   elif [[ ! -f "$1" ]]; then 
-     echo "usage: eror, $1 is not a valid file."
+     echo "error: ./ca_assert_file_contain_key_word $1 is not a valid file." 1>&2
+     return 1
   fi
   resultFind=`grep "$2" "$1"`
   if [[ -n $resultFind ]]; then
@@ -334,9 +328,11 @@ function ca_assert_file_contain_key_word ()
 function ca_assert_file_notcontain_key_word ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert_file_notcontain_key_word 1)file 2)keyword 3)fail reason."
+     echo "usage: ./ca_assert_file_notcontain_key_word 1)file 2)keyword 3)fail reason." 1>&2
+     return 1
   elif [[ ! -f "$1" ]]; then
-     echo "usage: eror, $1 is not a valid file."
+     echo "error: ./ca_assert_file_notcontain_key_word: $1 is not a valid file." 1>&2
+     return 1
   fi
   resultFind=`grep "$2" "$1"`
   if [[ -z $resultFind ]]; then
@@ -352,9 +348,8 @@ function ca_get_kill_driver_status ()
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
-      echo "error: $0: please specify a file."
-      #ca_recover_and_exit 1;
-      echo ""
+      echo "error: ca_get_kill_driver_status: please specify a file." 1>&2
+      return 1;
    fi
 }
 
@@ -362,8 +357,8 @@ function ca_stop_shuffle_service_by_ego_service ()
 {
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
-      echo "error: $0: no egosh be found."
-      #ca_recover_and_exit 1;
+      echo "error: ca_stop_shuffle_service_by_ego_service: no egosh be found." 1>&2
+      return 1;
    fi
    ca_enable_shuffle_service
    egosh service stop SPARKSS >> /dev/null
@@ -374,8 +369,8 @@ function ca_start_shuffle_service_by_ego_service ()
    sleep 3
    currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
-      echo "error: $0: no egosh be found."
-      #ca_recover_and_exit 1;
+      echo "error: ca_start_shuffle_service_by_ego_service: no egosh be found." 1>&2
+      return 1;
    fi
    ca_enable_shuffle_service
    egosh service start SPARKSS >> /dev/null
@@ -391,8 +386,8 @@ function ca_kill_shuffle_service_process ()
 function ca_start_shuffle_service_by_script ()
 {
     if [[ "$#" -ne 1 || -z "$1" ]]; then
-     echo "usage: ./ca_start_shuffle_service_by_script  1)tmpout file."
-#     #ca_recover_and_exit 1;
+     echo "usage: ./ca_start_shuffle_service_by_script  1)tmpout file." 1>&2
+     return 1;
     fi
     ca_enable_shuffle_service
     $SPARK_HOME/bin/spark-class org.apache.spark.deploy.ego.EGOShuffleService &>> $1 &
@@ -402,7 +397,8 @@ function ca_start_shuffle_service_by_script ()
 function ca_assert_file_exist_in_hdfs ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_assert 1)Dir path to exist file 2)key word of file name 3)fail reason."
+     echo "usage: ./ca_assert 1)Dir path to exist file 2)key word of file name 3)fail reason." 1>&2
+     return 1;
   fi
   outputDir=$1
   filename=$2
@@ -415,12 +411,23 @@ function ca_assert_file_exist_in_hdfs ()
   #  echo "failed"
   fi
 }
-
+function ca_assert_case_pass ()
+{
+   fw_report_save_case_result_in_file $val_case_name "Pass"
+}
+function ca_assert_case_fail ()
+{
+  if [[ "$#" -ne 1 || -z "$1" ]]; then
+     echo "usage: ./ca_assert_case_fail 1)fail reason." 1>&2
+     return 1
+  fi
+  fw_report_save_case_result_in_file $val_case_name "Fail" "$1"
+}
 function ca_find_keyword_timeout ()
 {
   if [ $# -le 2 ]; then
-    echo "usage: $0 <file> <keyword> <timeout>"
-    return -1
+    echo "usage: ca_find_keyword_timeout <file> <keyword> <timeout>" 1>&2
+    return 1
   fi
 
   local filename=${1:-''}
@@ -452,37 +459,37 @@ function ca_find_keyword_timeout ()
 function ca_kill_process_by_SPARK_HOME ()
 {
   if [[ "$#" -ne 1 || -z "$1" ]]; then
-     echo "usage: ./ca_kill_process 1)Key for process to be killed."
+     echo "usage: ./ca_kill_process 1)Key for process to be killed." 1>&2
   fi
   proc_id=`ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME`
     if [ -n "$proc_id" ]; then
         ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME|awk '{ print $2 }'|xargs kill
         echo "$1 has been killed"
     else
-        echo "$1 has not existed"
-        #ca_recover_and_exit 1;
+        echo "$1 does not exist"
+        return 1;
     fi
 }
 function ca_kill_process_by_EGO_TOP ()
 {
   if [[ "$#" -ne 1 || -z "$1" ]]; then
-     echo "usage: ./ca_kill_process 1)Key for process to be killed."
+     echo "usage: ./ca_kill_process 1)Key for process to be killed." 1>&2
   fi
   proc_id=`ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP`
     if [ -n "$proc_id" ]; then
         ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP|awk '{ print $2 }'|xargs kill
         echo "$1 has been killed"
     else
-        echo "$1 has not existed"
-        #ca_recover_and_exit 1;
+        echo "$1 does not exist"
+        return 1;
     fi
 }
 
 function ca_keep_check_in_file
 {
 if [[ "$#" -ne 4 || -z "$1" || ! -f "$2" || -z "$3" || -z "$4" ]]; then
-     echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)inteval_sec, 4)timeout_sec."
-     #ca_recover_and_exit 1
+     echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)inteval_sec, 4)timeout_sec." 1>&2
+     return 1
 fi
 resultFind=`grep "$1" "$2"`
 SECONDS=0
@@ -496,7 +503,7 @@ if [ -n "$resultFind" ]; then
     echo "$1 has been found in $2"
 else
     echo "Timeout! Can't find $1 in $2 in $4 secs "
-    #ca_recover_and_exit
+    return
 fi
 }
 function ca_check_cleanup ()
@@ -517,7 +524,7 @@ for tmpfile in `ls $tmp_local_dir`; do
        for tmpappfile in `ls $tmp_local_dir/$tmpfile/`; do
            case $tmpappfile in
               *_lock|*_cache  )
-                #echo "success;none";;
+                #do nothing
                 ;;
               * )
                 echo "fail;$tmp_local_dir/$tmpfile/$tmpappfile"
@@ -537,14 +544,14 @@ return 0;
 function ca_get_driver_id ()
 {
   if [ $# -ne 1 ]; then
-    echo "usage: $0 <output>"
+    echo "usage: ca_get_driver_id <output>" 1>&2
     return 1
   fi
 
   local file=${1:-''}
   local keyword="ClientEndpoint: Driver successfully submitted"
   if [ ! -f $file ]; then
-    echo "the file $file does not exists"
+    echo "error: ca_get_driver_id: the file $file does not exists" 1>&2
     return 1
   fi
 
@@ -554,7 +561,7 @@ function ca_get_driver_id ()
 function ca_kill_spark_app ()
 {
   if [ $# -ne 2 ]; then
-    echo "usage: $0 <driver id> <master:port>"
+    echo "usage: ca_kill_spark_app <driver id> <master:port>" 1>&2
     return 1
   fi
 
