@@ -24,13 +24,17 @@ sleep 15
 echo "$val_case_name - begin" 
 echo "$val_case_name - sbumit job"
 $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 60000 &>> $val_case_log_dir/tmpOut &
+appPID=$!
+echo "$val_case_name - app pid:$appPID"
+#wait till task run
+sleep 3
+ca_keep_check_in_file "Added broadcast_0_piece0" "$val_case_log_dir/tmpOut" "2" "40"
+sleep 3
 
-sleep 10
 #kill workload
-appPID=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
-kill $appPID
-
-sleep 5
+echo "$val_case_name - kill app"
+kill  $appPID
+sleep 10
 
 #check clean after app done
 cleanup_check_result=`ca_check_cleanup $tmp_cleanup_dir`
@@ -44,8 +48,8 @@ echo "$val_case_name - write report"
 ca_assert_str_eq "$cleanup_stat" "success" "$cleanup_reason"
 
 echo "$val_case_name - end" 
-if [[ "$cleanup_stat" == "success" ]]; then
-   rm -rf $val_case_log_dir/tmpOut
-   rm -rf $tmp_cleanup_dir
-fi
+#if [[ "$cleanup_stat" == "success" ]]; then
+#   rm -rf $val_case_log_dir/tmpOut
+#   rm -rf $tmp_cleanup_dir
+#fi
 ca_recover_and_exit 0;
