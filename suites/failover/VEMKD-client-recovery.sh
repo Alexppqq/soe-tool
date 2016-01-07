@@ -12,16 +12,16 @@ ca_filter_only_singleHost
 source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $val_case_log_dir/tmpOut &
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut &
 sleep 3
-ca_keep_check_in_file "Starting task" "$val_case_log_dir/tmpOut" "1" "40"
+ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 sleep 3
 ca_kill_process_by_EGO_TOP "vemkd"
-ca_keep_check_in_file "Job done" "$val_case_log_dir/tmpOut" "1" "100"
-ca_assert_file_contain_key_word $val_case_log_dir/tmpOut "Job done" "vemkd recover failed"
-echo "$val_case_name - write report"
+ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "100"
+ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "Job done" "vemkd recover failed"
+echo "$global_case_name - write report"
 #create case result
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;

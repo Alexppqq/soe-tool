@@ -12,16 +12,16 @@ ca_filter_only_singleHost
 source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=ego-client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $val_case_log_dir/tmpOut &
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
+$SPARK_HOME/bin/spark-submit --conf spark.master=ego-client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut &
 sleep 25
-#lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"|wc -l`
-ca_assert_file_contain_key_word $val_case_log_dir/tmpOut "Job done" "ego-client sleep job failed"
-echo "$val_case_name - write report"
+#lineOutput=`ca_find_by_key_word $global_case_log_dir/tmpOut "Job done"|wc -l`
+ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "Job done" "ego-client sleep job failed"
+echo "$global_case_name - write report"
 
 #create case result
 #ca_assert_num_ge $lineOutput 1 "job not done."
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 
 ca_recover_and_exit 0;

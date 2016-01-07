@@ -10,15 +10,15 @@ ca_filter_only_singleHost    # signle host cluster only, skip if HOST_NUM in ./c
 source $TEST_TOOL_HOME/scenario/scenario_fifo_conf 
 
 
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
 
 sc_update_to_spark_env "SPARK_EGO_LOGSERVICE_PORT" "28083"
-ca_start_shuffle_service_by_script "$val_case_log_dir/tmpOut"
+ca_start_shuffle_service_by_script "$global_case_log_dir/tmpOut"
 
 sleep 25
-ca_assert_file_contain_key_word $val_case_log_dir/tmpOut "28083" "logservice port 28083 failed"
-echo "$val_case_name - write report"
-echo "$val_case_name - end" 
+ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "28083" "logservice port 28083 failed"
+echo "$global_case_name - write report"
+echo "$global_case_name - end" 
 ca_kill_process_by_SPARK_HOME "Shuffle"
 ca_recover_and_exit 0;

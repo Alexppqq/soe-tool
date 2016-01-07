@@ -12,19 +12,19 @@ ca_filter_only_singleHost
 source $TEST_TOOL_HOME/scenario/scenario_fairshare_conf
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
 # 3 tasks each run 10000 ms
-ca_spark_shell_run_sleep 3 10000 async &>> $val_case_log_dir/tmpOut 
+ca_spark_shell_run_sleep 3 10000 async &>> $global_case_log_dir/tmpOut 
 sleep 5
-#tmpOut=`ca_find_by_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)"`
-lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`
+#tmpOut=`ca_find_by_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)"`
+lineOutput=`ca_find_by_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`
 #echo $tmpOut
 #echo $lineOutput
 
-echo "$val_case_name - write report"
+echo "$global_case_name - write report"
 ca_assert_num_ge $lineOutput 1 "job not done."
 
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;
 

@@ -34,56 +34,56 @@ fw_env_check
 source $EGO_TOP/profile.platform
 
 ### ego environment check
-val_ego_version=`fw_get_ego_version`
-if [[ -z $val_ego_version ]]; then
+global_ego_version=`fw_get_ego_version`
+if [[ -z $global_ego_version ]]; then
    echo "EGO version is missed. please make sure EGO works well."
    exit 1
-elif [[ $val_ego_version != 3.1.?.? && $val_ego_version != 3.3.?.? ]]; then
-   echo "EGO version $val_ego_version is not supported."
+elif [[ $global_ego_version != 3.1.?.? && $global_ego_version != 3.3.?.? ]]; then
+   echo "EGO version $global_ego_version is not supported."
    exit 1
 #else
-#   echo "EGO version: $val_ego_version"
+#   echo "EGO version: $global_ego_version"
 fi
 ### spark command check
-val_spark_version=`fw_get_spark_version`
-if [[ -z $val_spark_version ]]; then
+global_spark_version=`fw_get_spark_version`
+if [[ -z $global_spark_version ]]; then
    echo "Spark version is missed. please make sure Spark is well installed."
    exit 1
 #else
-#   echo "Spark version: $val_spark_version"
+#   echo "Spark version: $global_spark_version"
 fi
 ### hadoop command check
-val_hadoop_version=`fw_get_hadoop_version`
-if [[ -z $val_hadoop_version ]]; then
+global_hadoop_version=`fw_get_hadoop_version`
+if [[ -z $global_hadoop_version ]]; then
    echo "Hadoop version is missed. please make sure Hadoop is well installed."
    exit 1
 #else
-#   echo "Hadoop version: $val_hadoop_version"
+#   echo "Hadoop version: $global_hadoop_version"
 fi
 ### soe command check
-val_soe_version=`fw_get_spark_on_ego_version`
-if  [[ -z $val_soe_version ]]; then
+global_soe_version=`fw_get_spark_on_ego_version`
+if  [[ -z $global_soe_version ]]; then
    echo "Spark on EGO version is missed. please make sure SparkOnEgo Plugin is well installed."
    exit 1
-elif [[ "$val_soe_version" != Build* ]]; then
+elif [[ "$global_soe_version" != Build* ]]; then
    echo "Spark on EGO version is wrong. please make sure SparkOnEgo Plugin is well installed."
    exit 1
 #else
-#   echo "SparkOnEgo version: $val_soe_version"
+#   echo "SparkOnEgo version: $global_soe_version"
 fi
 
 #info user the version message together, 
 #hadoop is skipped since it's only optional
 echo "Spark on Ego Automation tool is running on:"
-echo "      EGO version: $val_ego_version"
-echo "      Spark version: $val_spark_version"
-echo "      SparkOnEgo version: $val_soe_version"
-#   echo "Hadoop version: $val_hadoop_version" 
+echo "      EGO version: $global_ego_version"
+echo "      Spark version: $global_spark_version"
+echo "      SparkOnEgo version: $global_soe_version"
+#   echo "Hadoop version: $global_hadoop_version" 
 
-### create report, export val_report_dir val_test_report
-val_report_dir=""
+### create report, export global_report_dir global_test_report
+global_report_dir=""
 fw_create_report_dir
-echo "please find report at $val_report_dir/testReport.txt"
+echo "please find report at $global_report_dir/testReport.txt"
 
 ### write report tile, including begin date
 fw_report_write_title
@@ -91,33 +91,33 @@ fw_report_write_title
 ### create case list
 ### Note: all executable file under $1 will be treated as a case
 fw_create_case_list $1
-echo "please find case list at $val_report_dir/caseList"
-echo "please find detail case log under $val_report_dir/logs/"
+echo "please find case list at $global_report_dir/caseList"
+echo "please find detail case log under $global_report_dir/logs/"
 
 ### run cases
-val_case_name="" #take script file name as case name
-val_case_result="" #valid value: Pass, Fail, Skip, Timeout
-val_case_result_reason=""  #explain reason of result, especially fail reason
-cat $val_report_dir/caseList | while read val_case_name; do
-    echo "$val_case_name is running."
-    if [[ ! -d $val_report_dir/logs/$val_case_name || ! -x $val_report_dir/logs/$val_case_name ]]; then
-       mkdir -p $val_report_dir/logs/$val_case_name
+global_case_name="" #take script file name as case name
+global_case_result="" #valid value: Pass, Fail, Skip, Timeout
+global_case_result_reason=""  #explain reason of result, especially fail reason
+cat $global_report_dir/caseList | while read global_case_name; do
+    echo "$global_case_name is running."
+    if [[ ! -d $global_report_dir/logs/$global_case_name || ! -x $global_report_dir/logs/$global_case_name ]]; then
+       mkdir -p $global_report_dir/logs/$global_case_name
     fi
-    export val_case_log_dir=$val_report_dir/logs/$val_case_name
-    export val_case_name
+    export global_case_log_dir=$global_report_dir/logs/$global_case_name
+    export global_case_name
     SECONDS=0  #system var to trace running time
     while [ "$SECONDS" -le "$CASE_RUNNING_TIMEOUT" ];do  #case timeout, defined by CASE_RUNNING_TIMEOUT
-      if [[  -n `echo $val_case_name| grep 'bats$'` ]]; then
-         bin/bats --tap $val_case_name 1> $val_case_log_dir/stdout 2> $val_case_log_dir/stderr
+      if [[  -n `echo $global_case_name| grep 'bats$'` ]]; then
+         bin/bats --tap $global_case_name 1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr
       else
-         ./$val_case_name  1> $val_case_log_dir/stdout 2> $val_case_log_dir/stderr
+         ./$global_case_name  1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr
       fi
       break
     done
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
-       fw_report_save_case_result_in_file $val_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
-    elif [[  ! -f $val_case_log_dir/caseResult ]]; then
-       fw_report_save_case_result_in_file $val_case_name "Fail" "no result return." 
+       fw_report_save_case_result_in_file $global_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
+    elif [[  ! -f $global_case_log_dir/caseResult ]]; then
+       fw_report_save_case_result_in_file $global_case_name "Fail" "no result return." 
     fi
     fw_report_write_case_result_to_report
 done

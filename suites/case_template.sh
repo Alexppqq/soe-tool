@@ -55,13 +55,13 @@ source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 # a common but not absolute steps is to submit workload and then check the alloc/running status.
 # please use "echo" to trace the progress, these info wil be print into stdout under log dir.
 # error will be printed into stderr. both stdout/stderr will be stored under logs/ in report dir, separated by case name.
-# val_case_name actually is the case script file name, whose value is passed by framework
+# global_case_name actually is the case script file name, whose value is passed by framework
 ################################################################################################
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $val_case_log_dir/tmpOut &
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut &
 sleep 25
-lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"|wc -l`
+lineOutput=`ca_find_by_key_word $global_case_log_dir/tmpOut "Job done"|wc -l`
 
 ################################################################################################
 # Part 5: write case result into test report based test output
@@ -78,11 +78,11 @@ lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "Job done"|wc -l`
 # case process will be killed and case result will be marked as "Timeout" in test report.
 # all result, "Pass" "Fail" "Skip" and "Timeout" are case sensitive
 ################################################################################################
-echo "$val_case_name - write report"
+echo "$global_case_name - write report"
 ca_assert_num_ge $lineOutput 1 "job not done."
 
 ################################################################################################
 # Part 6: recover user configuration and exit case
 ################################################################################################
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;

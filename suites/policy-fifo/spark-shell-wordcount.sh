@@ -13,8 +13,8 @@ ca_filter_only_hdfs
 source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - make random HDFS input/output"
+echo "$global_case_name - begin" 
+echo "$global_case_name - make random HDFS input/output"
 randomKey=`date +%s`
 inputFile="/input-${randomKey}.txt"
 outputDir="/output-${randomKey}"
@@ -22,8 +22,8 @@ $HADOOP_HOME/bin/hadoop fs -copyFromLocal $SPARK_HOME/data/mllib/pagerank_data.t
 #verify input
 $HADOOP_HOME/bin/hadoop fs -ls $inputFile
 
-echo "$val_case_name - sbumit job"
-ca_spark_shell_run_wordcount $inputFile $outputDir &>> $val_case_log_dir/tmpOut 
+echo "$global_case_name - sbumit job"
+ca_spark_shell_run_wordcount $inputFile $outputDir &>> $global_case_log_dir/tmpOut 
 sleep 5
 
 #tmpOut=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir| grep "part-"`
@@ -31,13 +31,13 @@ lineOutput=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir| grep "part-"|wc -l`
 #echo $tmpOut
 #echo $lineOutput
 
-echo "$val_case_name - write report"
+echo "$global_case_name - write report"
 ca_assert_num_ge $lineOutput 1 "job not done."
 
-echo "$val_case_name - cleanup HDFS files"
+echo "$global_case_name - cleanup HDFS files"
 $HADOOP_HOME/bin/hadoop fs -rmr $inputFile
 $HADOOP_HOME/bin/hadoop fs -rmr $outputDir
 
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;
 

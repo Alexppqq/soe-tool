@@ -32,20 +32,20 @@ sleep 3
 ca_keep_check_in_file "$randomRG" "$MASTER_LOG" "1" "15"
 
 #run shot case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
 ps ux|grep Master
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $val_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 
 sleep 10
 #get alloc info
 egosh alloc list -ll
-egosh alloc list -ll |grep "SPARK_RESMGR" > $val_case_log_dir/allocList
+egosh alloc list -ll |grep "SPARK_RESMGR" > $global_case_log_dir/allocList
 
-echo "$val_case_name - write report"
-ca_assert_file_contain_key_word "$val_case_log_dir/allocList" "$randomRG" "resource group $randomRG does not take effect"
+echo "$global_case_name - write report"
+ca_assert_file_contain_key_word "$global_case_log_dir/allocList" "$randomRG" "resource group $randomRG does not take effect"
 
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 appPID=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
 echo $appPID
 if [[ -z "$appPID" ]]; then

@@ -4,8 +4,8 @@ load $BATS_CWD/lib/workload.func
 load $BATS_CWD/lib/framework.func
 
 setup() {
-    export val_case_log_dir=$BATS_TMPDIR
-    export val_case_name=$BATS_TEST_NAME
+    export global_case_log_dir=$BATS_TMPDIR
+    export global_case_name=$BATS_TEST_NAME
 }
 
 teardown() {

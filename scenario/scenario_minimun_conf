@@ -3,7 +3,7 @@
 ###############################
 ###   test scenario
 ###############################
-val_scenario_name=scenario_minimum_conf
+global_scenario_name=scenario_minimum_conf
 source $TEST_TOOL_HOME/lib/framework.func
 
 sc_backup_spark_conf

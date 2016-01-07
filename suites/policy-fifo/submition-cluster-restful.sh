@@ -9,23 +9,23 @@ source $TEST_TOOL_HOME/lib/workload.func
 source $TEST_TOOL_HOME/scenario/scenario_fifo_conf 
 
 #case name
-#val_case_name=submition-cluster-restful
+#global_case_name=submition-cluster-restful
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
-#$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:6066 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 >>  $val_case_log_dir/stdout 2>> $val_case_log_dir/stderr
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:6066 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>>  $val_case_log_dir/tmpOut
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
+#$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:6066 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 >>  $global_case_log_dir/stdout 2>> $global_case_log_dir/stderr
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:6066 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>>  $global_case_log_dir/tmpOut
 sleep 5
-driverStatus=`ca_get_restapi_driver_status $val_case_log_dir/tmpOut`
-echo "$val_case_name - driver success to submit: $driverStatus"
-drivername=`ca_get_restapi_driver_name $val_case_log_dir/tmpOut`
-echo "$val_case_name - driver name: $drivername" 
+driverStatus=`ca_get_restapi_driver_status $global_case_log_dir/tmpOut`
+echo "$global_case_name - driver success to submit: $driverStatus"
+drivername=`ca_get_restapi_driver_name $global_case_log_dir/tmpOut`
+echo "$global_case_name - driver name: $drivername" 
 sleep 20
 lineOutput=`ca_find_by_key_word $SPARK_HOME/work/$drivername/stdout "Job done"|wc -l`
 
-echo "$val_case_name - write report"
+echo "$global_case_name - write report"
 ca_assert_num_ge $lineOutput 1 "job not done."
 
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;

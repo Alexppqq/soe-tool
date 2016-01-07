@@ -6,7 +6,7 @@
 function ca_get_nonmaster_driver_status ()
 {
    if [[ -f $1 ]]; then
-      driverStatus=`grep "Driver container state has changed to RUN" $1 | awk '{print $NF}'`
+      local driverStatus=`grep "Driver container state has changed to RUN" $1 | awk '{print $NF}'`
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
@@ -17,8 +17,8 @@ function ca_get_nonmaster_driver_status ()
 function ca_get_nonmaster_driver_stderr ()
 {
    if [[ -f $1 ]]; then
-      driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
-      drivername="spark-driver-alloc-"${driverid#*=}".stderr"
+      local driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
+      local drivername="spark-driver-alloc-"${driverid#*=}".stderr"
       #echo "driver name: $drivername"
       echo ${drivername}
    else
@@ -29,8 +29,8 @@ function ca_get_nonmaster_driver_stderr ()
 function ca_get_nonmaster_driver_stdout ()
 {
    if [[ -f $1 ]]; then
-      driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
-      drivername="spark-driver-alloc-"${driverid#*=}".stdout"
+      local driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
+      local drivername="spark-driver-alloc-"${driverid#*=}".stdout"
       #echo "driver name: $drivername" 
       echo ${drivername}
    else
@@ -41,7 +41,7 @@ function ca_get_nonmaster_driver_stdout ()
 function ca_get_akka_driver_status ()
 {
    if [[ -f $1 ]]; then
-      driverStatus=`grep "driver-" $1 | awk '/State of/ {print $NF}'`
+      local driverStatus=`grep "driver-" $1 | awk '/State of/ {print $NF}'`
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
@@ -52,7 +52,7 @@ function ca_get_akka_driver_status ()
 function ca_get_restapi_driver_status ()
 {
    if [[ -f $1 ]]; then 
-      driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
+      local driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
@@ -63,7 +63,7 @@ function ca_get_restapi_driver_status ()
 function ca_get_akka_driver_name ()
 {
    if [[ -f $1 ]]; then
-      drivername=`grep "driver-" $1 | awk '/State of/  {print $(NF-2)}'`
+      local drivername=`grep "driver-" $1 | awk '/State of/  {print $(NF-2)}'`
       #echo "driver name: $drivername" 
       echo $drivername
    else
@@ -74,7 +74,7 @@ function ca_get_akka_driver_name ()
 function ca_get_restapi_driver_name ()
 {
    if [[ -f $1 ]]; then
-     drivername=`sed 's/\"//g' $1 | sed 's/,//g' | awk '/submissionId/  {print $3}'`
+     local drivername=`sed 's/\"//g' $1 | sed 's/,//g' | awk '/submissionId/  {print $3}'`
      #echo "driver name: $drivername" 
      echo $drivername
    else
@@ -88,7 +88,7 @@ function ca_find_by_key_word ()
       echo "error: ca_find_by_key_word: please specify file name and key word to look up." 1>&2
       return 1;
    fi
-   findresult=`grep "$2" $1`
+   local findresult=`grep "$2" $1`
    #echo "find by key word: $findresult"
    echo $findresult
 }
@@ -97,9 +97,9 @@ function ca_assert_num_gt ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_gt 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -gt "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass" 
+     fw_report_save_case_result_in_file $global_case_name "Pass" 
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3" 
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3" 
   fi
 }
 function ca_assert_num_ge ()
@@ -107,9 +107,9 @@ function ca_assert_num_ge ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_ge 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -ge "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass" 
+     fw_report_save_case_result_in_file $global_case_name "Pass" 
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"    
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"    
   fi
 }
 function ca_assert_num_eq ()
@@ -117,9 +117,9 @@ function ca_assert_num_eq ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_eq 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -eq "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass" 
+     fw_report_save_case_result_in_file $global_case_name "Pass" 
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"    
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"    
   fi
 }
 function ca_assert_num_ne ()
@@ -127,9 +127,9 @@ function ca_assert_num_ne ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_ne 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -ne "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass" 
+     fw_report_save_case_result_in_file $global_case_name "Pass" 
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"    
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"    
   fi
 }
 function ca_assert_num_lt ()
@@ -137,9 +137,9 @@ function ca_assert_num_lt ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_lt 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -lt "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   fi
 }
 function ca_assert_num_le ()
@@ -147,9 +147,9 @@ function ca_assert_num_le ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_num_le 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" -le "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else 
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"    
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"    
   fi
 }
 function ca_assert_str_eq ()
@@ -157,9 +157,9 @@ function ca_assert_str_eq ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_str_eq 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" == "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   fi
 }
 function ca_assert_str_ne ()
@@ -167,18 +167,18 @@ function ca_assert_str_ne ()
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
      echo "usage: ./ca_assert_str_ne 1)variable, 2)threshold, 3)fail reason." 1>&2
   elif [[ "$1" != "$2" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   fi
 }
 function ca_case_filter_equal ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_case_filter_equal  1)val_of_ENV, 2)value_Expected, 3)skip reason." 1>&2
+     echo "usage: ./ca_case_filter_equal  1)global_of_ENV, 2)value_Expected, 3)skip reason." 1>&2
   elif [[ "$1" != "$2" ]]; then
      echo "case skiped, $3."
-     fw_report_save_case_result_in_file $val_case_name "Skip" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Skip" "$3"
      exit 1;
   else
      echo "case filter was meeted: $1 == $2."
@@ -187,10 +187,10 @@ function ca_case_filter_equal ()
 function ca_case_filter_notequal ()
 {
   if [[ "$#" -ne 3 || -z "$1" || -z "$2" || -z "$3" ]]; then
-     echo "usage: ./ca_case_filter_notequal  1)val_of_ENV, 2)value_notExpected, 3)skip reason." 1>&2
+     echo "usage: ./ca_case_filter_notequal  1)global_of_ENV, 2)value_notExpected, 3)skip reason." 1>&2
   elif [[ "$1" == "$2" ]]; then
      echo "case skiped, $3."
-     fw_report_save_case_result_in_file $val_case_name "Skip" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Skip" "$3"
      exit 1;
   else
      echo "case filter was meeted: $1 != $2."
@@ -222,6 +222,7 @@ function ca_spark_shell_run_sleep ()
 
   local taskNum=$1
   local taskRunTime=$2
+  local taskType=""
   if [[ "$3" == "async" ]]; then
      taskType="countAsync"
   elif [[ "$3" == "sync" ]]; then
@@ -250,8 +251,8 @@ if [[ "$#" -ne 2 ]]; then
   exit 1
 fi
 
-inputFile=$1
-outputDir=$2
+local inputFile=$1
+local outputDir=$2
 echo $inputFile
 echo $outputDir
 
@@ -288,9 +289,9 @@ if [[ "$#" -ne 2 ]]; then
   exit 1
 fi
 
-taskNum=$1
-taskRunTime=$2
-taskExpTimeout=`expr ${2} \* 3 + 30 `
+local taskNum=$1
+local taskRunTime=$2
+local taskExpTimeout=`expr ${2} \* 3 + 30 `
 
 #>>> import time
 #>>> sc.parallelize(xrange(1, 10), 6).map(lambda x: time.sleep(10)).count()
@@ -318,11 +319,11 @@ function ca_assert_file_contain_key_word ()
      echo "error: ./ca_assert_file_contain_key_word $1 is not a valid file." 1>&2
      return 1
   fi
-  resultFind=`grep "$2" "$1"`
+  local resultFind=`grep "$2" "$1"`
   if [[ -n $resultFind ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   fi
 }
 function ca_assert_file_notcontain_key_word ()
@@ -334,17 +335,17 @@ function ca_assert_file_notcontain_key_word ()
      echo "error: ./ca_assert_file_notcontain_key_word: $1 is not a valid file." 1>&2
      return 1
   fi
-  resultFind=`grep "$2" "$1"`
+  local resultFind=`grep "$2" "$1"`
   if [[ -z $resultFind ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   fi
 }
 function ca_get_kill_driver_status ()
 {
    if [[ -f $1 ]]; then
-      driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
+      local driverStatus=`cat $1 | awk '/\"success\"/ {print $3}'`
       #echo "driver success to submit: $driverStatus"
       echo $driverStatus
    else
@@ -355,7 +356,7 @@ function ca_get_kill_driver_status ()
 
 function ca_stop_shuffle_service_by_ego_service ()
 {
-   currEgosh=`which egosh|grep "egosh$"`
+   local currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
       echo "error: ca_stop_shuffle_service_by_ego_service: no egosh be found." 1>&2
       return 1;
@@ -367,7 +368,7 @@ function ca_start_shuffle_service_by_ego_service ()
 {
    ca_kill_shuffle_service_process
    sleep 3
-   currEgosh=`which egosh|grep "egosh$"`
+   local currEgosh=`which egosh|grep "egosh$"`
    if [[ -z "$currEgosh" ]]; then
       echo "error: ca_start_shuffle_service_by_ego_service: no egosh be found." 1>&2
       return 1;
@@ -378,7 +379,7 @@ function ca_start_shuffle_service_by_ego_service ()
 }
 function ca_kill_shuffle_service_process ()
 {
-    proc_id=`ps -ux |grep Shuffle|grep -v grep|grep $SPARK_HOME`
+    local proc_id=`ps -ux |grep Shuffle|grep -v grep|grep $SPARK_HOME`
     if [ -n "$proc_id" ]; then
         ps -ux |grep Shuffle|grep -v grep|grep $SPARK_HOME|awk '{ print $2 }'|xargs kill -9
     fi
@@ -400,20 +401,20 @@ function ca_assert_file_exist_in_hdfs ()
      echo "usage: ./ca_assert 1)Dir path to exist file 2)key word of file name 3)fail reason." 1>&2
      return 1;
   fi
-  outputDir=$1
-  filename=$2
-  resultFind=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir`
+  local outputDir=$1
+  local filename=$2
+  local resultFind=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir`
   if [[ $resultFind =~ "$filename" ]]; then
-     fw_report_save_case_result_in_file $val_case_name "Pass"
+     fw_report_save_case_result_in_file $global_case_name "Pass"
   #   echo "pass"
   else
-     fw_report_save_case_result_in_file $val_case_name "Fail" "$3"
+     fw_report_save_case_result_in_file $global_case_name "Fail" "$3"
   #  echo "failed"
   fi
 }
 function ca_assert_case_pass ()
 {
-   fw_report_save_case_result_in_file $val_case_name "Pass"
+   fw_report_save_case_result_in_file $global_case_name "Pass"
 }
 function ca_assert_case_fail ()
 {
@@ -421,7 +422,7 @@ function ca_assert_case_fail ()
      echo "usage: ./ca_assert_case_fail 1)fail reason." 1>&2
      return 1
   fi
-  fw_report_save_case_result_in_file $val_case_name "Fail" "$1"
+  fw_report_save_case_result_in_file $global_case_name "Fail" "$1"
 }
 function ca_find_keyword_timeout ()
 {
@@ -453,7 +454,7 @@ function ca_find_keyword_timeout ()
     grep "${keyword}" ${filename}
     [ $? -eq 0 ] && break
     sleep 1
-    timeout=$(( $timeout - 1 ))
+    local timeout=$(( $timeout - 1 ))
   done
 }
 function ca_kill_process_by_SPARK_HOME ()
@@ -461,7 +462,7 @@ function ca_kill_process_by_SPARK_HOME ()
   if [[ "$#" -ne 1 || -z "$1" ]]; then
      echo "usage: ./ca_kill_process 1)Key for process to be killed." 1>&2
   fi
-  proc_id=`ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME`
+  local proc_id=`ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME`
     if [ -n "$proc_id" ]; then
         ps -ux |grep "$1"|grep -v grep|grep $SPARK_HOME|awk '{ print $2 }'|xargs kill
         echo "$1 has been killed"
@@ -475,7 +476,7 @@ function ca_kill_process_by_EGO_TOP ()
   if [[ "$#" -ne 1 || -z "$1" ]]; then
      echo "usage: ./ca_kill_process 1)Key for process to be killed." 1>&2
   fi
-  proc_id=`ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP`
+  local proc_id=`ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP`
     if [ -n "$proc_id" ]; then
         ps -ux |grep "$1"|grep -v grep|grep $EGO_TOP|awk '{ print $2 }'|xargs kill
         echo "$1 has been killed"
@@ -488,10 +489,10 @@ function ca_kill_process_by_EGO_TOP ()
 function ca_keep_check_in_file
 {
 if [[ "$#" -ne 4 || -z "$1" || ! -f "$2" || -z "$3" || -z "$4" ]]; then
-     echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)inteval_sec, 4)timeout_sec." 1>&2
+     echo "usage: ./ca_keep_check_in_file  1)key, 2)file, 3)integlobal_sec, 4)timeout_sec." 1>&2
      return 1
 fi
-resultFind=`grep "$1" "$2"`
+local resultFind=`grep "$1" "$2"`
 SECONDS=0
 while [[ "$SECONDS" -le "$4" && -z "$resultFind" ]]; do
 #    echo "$SECONDS"
@@ -512,7 +513,7 @@ if [[ ! -d $1 || ! -x $1 ]]; then
   echo "fail;usage: ./ca_check_cleanup 1)sparklocaldir"
   return 1;
 else
-  tmp_local_dir=$1
+  local tmp_local_dir=$1
 fi
 
 for tmpfile in `ls $tmp_local_dir`; do

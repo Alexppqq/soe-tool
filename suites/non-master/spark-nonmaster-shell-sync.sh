@@ -12,15 +12,15 @@ ca_filter_only_singleHost
 source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf
 
 #run case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
 # 3 tasks each run 10000 ms
-ca_spark_shell_run_sleep 4 10000 sync "onStageCompleted: stageId(0)"  &>> $val_case_log_dir/tmpOut 
+ca_spark_shell_run_sleep 4 10000 sync "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut 
 sleep 5
-#lineOutput=`ca_find_by_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`
-ca_assert_file_contain_key_word $val_case_log_dir/tmpOut "onStageCompleted: stageId(0)" "spark-shell nonmaster sleep job failed"
-echo "$val_case_name - write report"
+#lineOutput=`ca_find_by_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`
+ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)" "spark-shell nonmaster sleep job failed"
+echo "$global_case_name - write report"
 #ca_assert_num_ge $lineOutput 1 "job not done."
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 ca_recover_and_exit 0;
 

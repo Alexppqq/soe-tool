@@ -26,21 +26,21 @@ sc_update_to_spark_env "SPARK_EGO_DRIVER_CONSUMER" "/$randomConsumer"
 sc_update_to_spark_env "SPARK_EGO_DRIVER_PLAN" "$randomRG"
 
 #run shot case
-echo "$val_case_name - begin" 
-echo "$val_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 10000 &>> $val_case_log_dir/tmpOut &
+echo "$global_case_name - begin" 
+echo "$global_case_name - sbumit job"
+$SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 10000 &>> $global_case_log_dir/tmpOut &
 
 sleep 5
-ca_keep_check_in_file  "Driver container state has changed to RUN" "$val_case_log_dir/tmpOut" "1" "25"
+ca_keep_check_in_file  "Driver container state has changed to RUN" "$global_case_log_dir/tmpOut" "1" "25"
 
 #get alloc info
 egosh alloc list -ll 
-egosh alloc list -ll |grep "EGOCLIENT:/$randomConsumer" > $val_case_log_dir/allocList
+egosh alloc list -ll |grep "EGOCLIENT:/$randomConsumer" > $global_case_log_dir/allocList
 
-echo "$val_case_name - write report"
-ca_assert_file_contain_key_word "$val_case_log_dir/allocList" "\"$randomRG\"" "consumer does not take effect"
+echo "$global_case_name - write report"
+ca_assert_file_contain_key_word "$global_case_log_dir/allocList" "\"$randomRG\"" "consumer does not take effect"
 
-echo "$val_case_name - end" 
+echo "$global_case_name - end" 
 appPIDs=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
 echo $appPIDs
 if [[ -n "$appPIDs" ]]; then
