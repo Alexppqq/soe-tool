@@ -24,34 +24,28 @@ $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 -
 sleep 3
 drivername1=`ca_get_akka_driver_name "$global_case_log_dir/tmpOut1"`
 drivername2=`ca_get_akka_driver_name "$global_case_log_dir/tmpOut2"`
+
 sleep 30
 echo "$global_case_name - print stable alloc tree"
 totalDemand=`expr $taskNum \* 2`
-stableTreeTitle="|---root:FIFO, demand:$totalDemand, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST"
-fristExpected="/root:FIFO, demand:$taskNum, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST, ratio:$fristPriority"
-secondExpected="/root:FIFO, demand:$taskNum, assigned:0, planned:0, ratio:$secondPriority"
-echo `date`
-echo "debug - stable tree"
-echo "grep -A 2 '$stableTreeTitle' $MASTER_LOG|tail -n 3"
-echo `grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3`
-echo "debug - first app right"
-echo "grep -A 2 '$stableTreeTitle' $MASTER_LOG|tail -n 3|grep '$fristExpected'"
+stableTreeTitle="|---root, demand:$totalDemand, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST"
+fristExpected="/root, demand:$taskNum, assigned:$SLOTS_PER_HOST, planned:$SLOTS_PER_HOST, ratio:$fristPriority"
+secondExpected="/root, demand:$taskNum, assigned:0, planned:0, ratio:$secondPriority"
+
+echo "debug - check 1st allocation"
 echo `grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$fristExpected"`
-echo "debug - second app right"
-echo "grep -A 2 '$stableTreeTitle' $MASTER_LOG|tail -n 3|grep '$secondExpected'"
+echo "debug - check 2nd allocation"
 echo `grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$secondExpected"`
 
 #each app should assigned $eachAssigned slots in stable status
-firstAllocRight=`grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$fristExpected"|wc -l`
-secondAllocRight=`grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$secondExpected"|wc -l`
+firstAllocRight=`grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$fristExpected"`
+secondAllocRight=`grep -A 2 "$stableTreeTitle" $MASTER_LOG|tail -n 3|grep "$secondExpected"`
 
 echo "$global_case_name - write report"
-lineOutput=`expr $firstAllocRight + $secondAllocRight`
-if [[ "$firstAllocRight" == "1" && "$secondAllocRight" == "1" ]]; then
-   ca_assert_num_eq "$lineOutput" 2 "slots allocation is not right."
-#elif [[ "$firstAllocRight" != "1" || "$firstAllocRight" != "1" ]]; then
+if [[ -n "$firstAllocRight" && -n "$secondAllocRight" ]]; then
+   ca_assert_case_pass
 else
-   ca_assert_num_eq 3 2 "slots allocation is not right."
+   ca_assert_case_fail "slots allocation is not right."
 fi
 
 echo "$global_case_name - end"

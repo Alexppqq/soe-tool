@@ -214,8 +214,8 @@ function ca_filter_only_multipleHost ()
 }
 function ca_spark_shell_run_sleep ()
 {
-  if [[ "$#" -le 3 ]]; then
-    echo -e "usage: ca_spark_shell_run_sleep taskNumber taskRunningTime taskType <end_condition>\n  \
+  if [[ "$#" -ne 3 && "$#" -ne 4 ]]; then
+    echo -e "usage: ca_spark_shell_run_sleep: ca_spark_shell_run_sleep taskNumber taskRunningTime taskType <end_condition>\n  \
                     the valid value of taskType is 'sync' and 'async'"  1>&2
     return 1
   fi
@@ -228,7 +228,7 @@ function ca_spark_shell_run_sleep ()
   elif [[ "$3" == "sync" ]]; then
      taskType="count"
   else
-     echo "error: valid value of taskType is 'sync' and 'async'." 1>&2
+     echo "error: ca_spark_shell_run_sleep: invalid taskType, neither 'sync' nor 'async'." 1>&2
      return 1
   fi
   local end_condition=${4:-"onStageCompleted: stageId(0)"}
@@ -258,25 +258,19 @@ echo $outputDir
 
 expect<<- END
 spawn $SPARK_HOME/bin/spark-shell
-set timeout 100
+set timeout -1
 expect "scala>"
 send "val inputFile = sc.textFile(\"${inputFile}\")\r"
-set timeout 60
 expect "scala>"
 send "val counts = inputFile.flatMap(line => line.split(\" \")).map(word => (word, 1)).reduceByKey(_ + _);\r"
-set timeout 60
 expect "scala>"
 send "counts.toDebugString\r"
-set timeout 60
 expect "scala>"
 send "counts.cache()\r"
-set timeout 60
 expect "scala>"
 send "counts.collect().foreach(println)\r"
-set timeout 60
 expect "scala>"
 send "counts.saveAsTextFile(\"${outputDir}\")\r"
-set timeout 60
 expect "scala>"
 send "\n"
 exit
@@ -291,21 +285,14 @@ fi
 
 local taskNum=$1
 local taskRunTime=$2
-local taskExpTimeout=`expr ${2} \* 3 + 30 `
-
-#>>> import time
-#>>> sc.parallelize(xrange(1, 10), 6).map(lambda x: time.sleep(10)).count()
-
 
 expect<<- END
 spawn $SPARK_HOME/bin/pyspark
-set timeout 25
+set timeout -1
 expect ">>>"
 send "import time\n"
-set timeout 3
 expect ">>>"
 send "sc.parallelize(xrange(1, 10), ${taskNum}).map(lambda x: time.sleep(${taskRunTime})).count()\n"
-set timeout ${taskExpTimeout}
 expect "onStageCompleted: stageId(0)"
 exit
 END
