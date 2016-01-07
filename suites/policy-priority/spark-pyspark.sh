@@ -17,13 +17,9 @@ echo "$global_case_name - sbumit job"
 # 3 task each run 10s
 ca_spark_pyspark_run_sleep  3 10 &>> $global_case_log_dir/tmpOut 
 sleep 5
-tmpOut=`ca_find_by_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)"`
-lineOutput=`ca_find_by_key_word $global_case_log_dir/tmpOut "onStageCompleted: stageId(0)"|wc -l`
-echo $tmpOut
-echo $lineOutput
 
 echo "$global_case_name - write report"
-ca_assert_num_ge $lineOutput 1 "job not done."
+ca_assert_file_contain_key_word "$global_case_log_dir/tmpOut" "onStageCompleted: stageId(0)" "job did not finish."
 
 echo "$global_case_name - end" 
 ca_recover_and_exit 0;

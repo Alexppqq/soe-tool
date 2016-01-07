@@ -6,7 +6,7 @@
 #   policy: fifo
 #   slots reserve: no  
 ###############################
-global_scenario_name=scenario_fifo
+global_scenario_name=scenario_priority
 #source $TEST_TOOL_HOME/conf/environment.conf
 #source $TEST_TOOL_HOME/lib/framework.func
 
