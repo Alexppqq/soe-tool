@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/bin/bash 
 
 #############################################################################################################
 #
 #  usage: $0 caseListDir/singleCase
-#  the script will run all execuable files recursively and give a test report
 #    
 #############################################################################################################
 
@@ -26,7 +25,6 @@ elif [[ ! -x $1 ]]; then
    echo "please make sure $1 has executale right."
    exit 1
 fi
-
 ### environment check
 fw_env_check
 
@@ -99,25 +97,36 @@ global_case_name="" #take script file name as case name
 global_case_result="" #valid value: Pass, Fail, Skip, Timeout
 global_case_result_reason=""  #explain reason of result, especially fail reason
 cat $global_report_dir/caseList | while read global_case_name; do
-    echo "$global_case_name is running."
+    echo -n "run $global_case_name "
     if [[ ! -d $global_report_dir/logs/$global_case_name || ! -x $global_report_dir/logs/$global_case_name ]]; then
        mkdir -p $global_report_dir/logs/$global_case_name
     fi
     export global_case_log_dir=$global_report_dir/logs/$global_case_name
     export global_case_name
-    SECONDS=0  #system var to trace running time
-    while [ "$SECONDS" -le "$CASE_RUNNING_TIMEOUT" ];do  #case timeout, defined by CASE_RUNNING_TIMEOUT
-      if [[  -n `echo $global_case_name| grep 'bats$'` ]]; then
-         bin/bats --tap $global_case_name 1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr
-      else
-         ./$global_case_name  1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr
-      fi
-      break
+    if [[  -n `echo $global_case_name| grep 'bats$'` ]]; then
+       bin/bats --tap $global_case_name 1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr
+    else
+       SECONDS=0 #system var to trace running time
+       ./$global_case_name  1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr &
+       casePid=$!
+    fi
+    while [[ -n `ps $casePid|grep $casePid` && "$SECONDS" -le "$CASE_RUNNING_TIMEOUT" ]]; do
+      #echo -n "${SECONDS} -"; ps $casePid|grep $casePid
+      if [ $(($SECONDS%10)) = '0' ]; then
+         echo -n "."
+      fi 
+      sleep 1;
     done
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
+       echo " timeout."
+       kill -9 $casePid  
+       sc_recover_spark_conf
        fw_report_save_case_result_in_file $global_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
     elif [[  ! -f $global_case_log_dir/caseResult ]]; then
        fw_report_save_case_result_in_file $global_case_name "Fail" "no result return." 
+       echo " error."
+    else
+       echo " done."
     fi
     fw_report_write_case_result_to_report
 done
