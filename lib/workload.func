@@ -557,11 +557,115 @@ function ca_kill_spark_app ()
   local master="spark://${2:-'${SYM_MASTER_HOST}:6066'}" # port should be rest port, default is 6066
 
   if [ -z $driver_id ]; then
-    echo "the driver id is blank"
+    echo "error:the driver id is blank" 1>&2
     return 1
   fi
 
   $SPARK_HOME/bin/spark-submit --kill $driver_id --master $master
   [ $? -eq 0 ] || echo ""
 }
+function ca_update_to_spark_default ()
+{
+   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+      echo "usage: ./ca_update_to_spark_default envName envValue" 1>&2
+      return 1;
+   elif [[ ! -f $SPARK_CONF_DIR/spark-defaults.conf ]]; then
+      echo "error: ./ca_update_to_spark_default: please make sure $SPARK_CONF_DIR/spark-defaults.conf is exist." 1>&2
+      return 1;
+   fi
+   local envName=$1
+   local envValue=$2
+   #below grep cmd must have a spcace in the end
+   local OLD_SETTING_DEF=$(grep "^$envName" $SPARK_CONF_DIR/spark-defaults.conf || echo "")
+   if [ -z "$OLD_SETTING_DEF" ]; then
+       local lines=`cat $SPARK_CONF_DIR/spark-defaults.conf|wc -l`
+       if [ $lines -ne 0 ]; then
+           sed -i --follow-symlinks "\$a$envName $envValue" $SPARK_CONF_DIR/spark-defaults.conf
+       else
+          # "$lines -eq 0"
+          echo "$envName $envValue" >> $SPARK_CONF_DIR/spark-defaults.conf
+       fi
+   else
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks -e "s#^$envName #\#$envName #g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks "\$a$envName $envValue" $SPARK_CONF_DIR/spark-defaults.conf
+   fi
+}
+function ca_update_to_spark_env ()
+{
+   if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+      echo "usage: ./ca_update_to_spark_env envName envValue" 1>&2
+      return 1;
+   elif [[ ! -f $SPARK_CONF_DIR/spark-env.sh ]]; then
+      echo "error: ./ca_update_to_spark_env: please make sure $SPARK_CONF_DIR/spark-env.sh is exist." 1>&2
+      return 1;
+   fi
+   local envName=$1
+   local envValue=$2
+   local OLD_SETTING_DEF=`cat $SPARK_CONF_DIR/spark-env.sh | grep "^$envName="`
+   if [ -z "$OLD_SETTING_DEF" ]; then
+       local lines=`cat $SPARK_CONF_DIR/spark-env.sh|wc -l`
+       if [ $lines -ne 0 ]; then
+           sed -i --follow-symlinks "\$a$envName=$envValue" $SPARK_CONF_DIR/spark-env.sh
+       else
+           echo "$envName=$envValue" >> $SPARK_CONF_DIR/spark-env.sh
+       fi
+   else
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-env.sh
+       sed -i --follow-symlinks "\$a$envName=$envValue" $SPARK_CONF_DIR/spark-env.sh
+   fi
+}
+function ca_comment_out_in_spark_default ()
+{
+  if [[ "$#" -ne 1 || -z "$1" ]]; then
+      echo "usage: ./ca_comment_out_in_spark_default envName" 1>&2
+      return 1;
+  fi
+  local envName=$1
+  local OLD_SETTING_DEF=$(grep "^$envName" $SPARK_CONF_DIR/spark-defaults.conf || echo "")
+  if [ -n "$OLD_SETTING_DEF" ]; then
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-defaults.conf
+       sed -i --follow-symlinks -e "s#^$envName #\#$envName #g" $SPARK_CONF_DIR/spark-defaults.conf
+  fi
+}
+function ca_comment_out_in_spark_env ()
+{
+  if [[ "$#" -ne 1 || -z "$1" ]]; then
+      echo "usage: ./ca_comment_out_in_spark_env envName" 1>&2
+      return 1;
+  fi
+  local envName=$1
+  local OLD_SETTING_DEF=$(grep "^$envName" $SPARK_CONF_DIR/spark-defaults.conf || echo "")
+  if [ -n "$OLD_SETTING_DEF" ]; then
+       sed -i --follow-symlinks -e "s#^$envName=#\#$envName=#g" $SPARK_CONF_DIR/spark-defaults.conf
+  fi
+}
+function ca_get_master_ego_client_name ()
+{
+   local currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: ca_get_master_ego_client_name: no egosh be found." 1>&2
+      return 1;
+   fi
+   egosh alloc list -ll | awk -F ',' '{print $3}'|grep "SPARK_RESMGR" | sed 's/"//g'
+}
+function ca_get_nomaster_driver_client_name ()
+{
+   local currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: ca_get_nomaster_driver_client_name: no egosh be found." 1>&2
+      return 1;
+   fi
+   egosh alloc list -ll | awk -F ',' '{print $3}'|grep "EGOCLIENT" | sed 's/"//g'
+}
+function ca_get_nomaster_executor_client_name ()
+{
+   local currEgosh=`which egosh|grep "egosh$"`
+   if [[ -z "$currEgosh" ]]; then
+      echo "error: ca_get_nomaster_executor_client_name: no egosh be found." 1>&2
+      return 1;
+   fi
+   egosh alloc list -ll | awk -F ',' '{print $3}'|grep "SPARKDRIVER" | sed 's/"//g'
+}
+
 

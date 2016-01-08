@@ -21,8 +21,8 @@ egosh consumer add /$randomConsumer -e root -a Admin -g $randomRG
 egosh consumer list|grep $randomConsumer
 
 #config resource group, disable HA, for spark.ego.client.ttl make resource group cannot be deleted
-sc_comment_out_in_spark_default "spark.deploy.recoveryMode"
-sc_comment_out_in_spark_default "spark.deploy.recoveryDirectory"
+ca_comment_out_in_spark_default "spark.deploy.recoveryMode"
+ca_comment_out_in_spark_default "spark.deploy.recoveryDirectory"
 sc_update_to_spark_env "SPARK_EGO_EXECUTOR_CONSUMER" "/$randomConsumer"
 sc_update_to_spark_env "SPARK_EGO_EXECUTOR_PLAN" "$randomRG"
 

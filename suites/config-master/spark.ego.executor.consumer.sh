@@ -18,8 +18,8 @@ egosh consumer list|grep $randomConsumer
 #egosh consumer view /$randomConsumer
 
 #config consumer, disable HA, for spark.ego.client.ttl make consumer cannot be deleted
-sc_comment_out_in_spark_default "spark.deploy.recoveryMode"
-sc_comment_out_in_spark_default "spark.deploy.recoveryDirectory"
+ca_comment_out_in_spark_default "spark.deploy.recoveryMode"
+ca_comment_out_in_spark_default "spark.deploy.recoveryDirectory"
 sc_update_to_spark_default "spark.ego.executor.consumer" "/$randomConsumer"
 
 #restart service to make config take effect
