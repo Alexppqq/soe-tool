@@ -18,6 +18,7 @@ $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 -
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 ca_kill_process_by_SPARK_HOME "executor-id"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "100"
 ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "Job done" "executor recover failed"
 echo "$global_case_name - write report"

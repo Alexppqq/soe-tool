@@ -26,6 +26,7 @@ echo "$global_case_name - driver name: $drivername"
 ca_keep_check_in_file "Starting task" "/tmp/logs/$drivername" "1" "40"
 sleep 3
 ca_kill_process_by_EGO_TOP "vemkd"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 stdout=`ca_get_nonmaster_driver_stdout $global_case_log_dir/tmpOut`
 ca_keep_check_in_file "Job done" "/tmp/logs/$stdout" "1" "40"
 ca_assert_file_contain_key_word /tmp/logs/$stdout "Job done" "vemkd ego-cluster recover failed"

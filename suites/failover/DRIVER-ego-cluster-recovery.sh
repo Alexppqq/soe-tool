@@ -26,6 +26,7 @@ echo "$global_case_name - driver name: $drivername"
 ca_keep_check_in_file "Starting task" "/tmp/logs/$drivername" "1" "40"
 sleep 3
 ca_kill_process_by_SPARK_HOME "EGOClusterDriverWrapper"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 ca_keep_check_in_file "Job 0 failed" "/tmp/logs/$drivername" "1" "40"
 ca_assert_file_contain_key_word /tmp/logs/$drivername "Job 0 failed" "cluster kill driver killed app failed"
 echo "$global_case_name - write report"

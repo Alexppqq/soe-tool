@@ -19,6 +19,7 @@ sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 sleep 3
 ca_kill_process_by_EGO_TOP "vemkd"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "100"
 ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "Job done" "vemkd recover failed"
 echo "$global_case_name - write report"

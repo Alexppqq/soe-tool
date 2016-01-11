@@ -18,6 +18,7 @@ $SPARK_HOME/bin/spark-submit --conf spark.master=ego-client  --class job.submit.
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 ca_kill_process_by_EGO_TOP "vemkd"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "60"
 ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "vemkd has been recovered" "vemkd ego-client recover failed"
 echo "$global_case_name - write report"

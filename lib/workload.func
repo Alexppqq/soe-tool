@@ -491,7 +491,7 @@ if [ -n "$resultFind" ]; then
     echo "$1 has been found in $2"
 else
     echo "Timeout! Can't find $1 in $2 in $4 secs "
-    return
+    return 1
 fi
 }
 function ca_check_cleanup ()

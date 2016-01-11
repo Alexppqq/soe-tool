@@ -28,6 +28,7 @@ echo "$global_case_name - driver name: $drivername"
 ca_keep_check_in_file "Starting task" "$SPARK_HOME/work/$drivername/stderr" "1" "40"
 sleep 3
 ca_kill_process_by_EGO_TOP "vemkd"
+[[ $? != 0 ]] && ca_recover_and_exit $?
 ca_keep_check_in_file "Job done" "$SPARK_HOME/work/$drivername/stdout" "1" "60"
 ca_assert_file_contain_key_word $SPARK_HOME/work/$drivername/stdout "Job done" "vemkd recovery failed"
 echo "$global_case_name - write report"
