@@ -46,6 +46,7 @@ if [[ -n "$firstAllocRight" && -n "$secondAllocRight" ]]; then
    ca_assert_case_pass
 else
    ca_assert_case_fail "slots allocation is not right."
+   cp $MASTER_LOG $global_case_log_dir/
 fi
 
 echo "$global_case_name - end"

@@ -39,6 +39,7 @@ if [[ -n $lineMatched ]]; then
    ca_assert_num_eq "$lineMatched" "2" "slots allocation is not accurate."
 else
    ca_assert_case_fail "slots allocation is not right."
+   cp $MASTER_LOG $global_case_log_dir/
 fi
 
 echo "$global_case_name - end" 
