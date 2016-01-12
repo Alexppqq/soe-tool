@@ -13,7 +13,7 @@ source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-ca_assert_num_lt $SLOTS_PER_HOST 6 "free slots are less than 8 ,can't finish this test  case"
+ca_assert_num_ge $SLOTS_PER_HOST 6 "free slots are less than 6, can't finish this test case"
 job_task=`expr $SLOTS_PER_HOST - 4`
 $SPARK_HOME/bin/spark-submit --conf spark.master=ego-client --class job.submit.control.submitSleepTasks $SAMPLE_JAR "$job_task" 40000 &>> $global_case_log_dir/tmpOut1  &
 sleep 3
