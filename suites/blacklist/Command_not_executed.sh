@@ -25,18 +25,14 @@ ca_keep_check_in_file "Command not executed" "$global_case_log_dir/tmpOut" "1" "
 res2=$?
 echo "$global_case_name - write report"
 if [[ $res1 == 0 && $res2 == 0 ]]; then
-{
-ca_assert_case_pass
-}
+    ca_assert_case_pass
 else
-{
-ca_assert_case_fail "Add to block list failed"
-}
+    ca_assert_case_fail "Add to block list failed"
 fi
-echo "$global_case_name - end"
 #recovery
 ca_kill_process_by_SPARK_HOME "submit"
 chmod 755 $SPARK_HOME/bin/exec-wrapper.sh
 sc_restart_master_by_ego_service
 sleep 10
+echo "$global_case_name - end"
 ca_recover_and_exit 0;

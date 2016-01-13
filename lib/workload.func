@@ -668,4 +668,54 @@ function ca_get_nomaster_executor_client_name ()
    egosh alloc list -ll | awk -F ',' '{print $3}'|grep "SPARKDRIVER" | sed 's/"//g'
 }
 
+function ca_check_configuration_set ()
+{
+    if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+       echo "usage: ./ca_check_variable_set variable value" 1>&2
+       return 1;
+    fi
+    local res1=""
+    res1=$( grep "^$1" $SPARK_CONF_DIR/spark-env.sh |grep $2 )
+    local res2=""
+    res2=$( grep "^$1" $SPARK_CONF_DIR/spark-defaults.conf |grep $2 )
+    if [[ -z $res1 && -z $res2 ]]; then
+       return 1;
+    else
+       return 0;
+    fi
+}
+function ca_add_host_to_blocklist_by_exception ()
+{
+ca_check_configuration_set "SPARK_EGO_ENABLE_BLOCKHOST" "true"
+if [[ $? == 1 ]]; then
+   echo "block list is not enable"
+   return 1;
+fi
+mv  $SPARK_HOME/bin/exec-wrapper.sh $SPARK_HOME/bin/exec-wrapper.sh.tmp
+$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $TEST_TOOL_HOME/data/tmpOut &
+sleep 2
+ca_keep_check_in_file "is added into Block Host list" "$TEST_TOOL_HOME/data/tmpOut" "1" "100" >> /dev/null
+sleep 3
+ca_kill_process_by_SPARK_HOME "submit" >> /dev/null
+mv  $SPARK_HOME/bin/exec-wrapper.sh.tmp $SPARK_HOME/bin/exec-wrapper.sh
+rm -rf $TEST_TOOL_HOME/data/tmpOut
+}
+function ca_check_blocklist_after_submission ()
+{
+    if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+       echo "usage: ./ca_check_blocklist_after_submission alloc_id hostname" 1>&2
+       return 1;
+    fi
+egosh alloc view $1 > $TEST_TOOL_HOME/data/alloc_view
+local res=""
+res=$( grep -A2  "BLOCKED RESOURCE LIST:" $TEST_TOOL_HOME/data/alloc_view |grep $2)
+rm -rf $TEST_TOOL_HOME/data/alloc_view
+    if [[ -z $res ]]; then
+       echo "block host dosen't contain $2"
+       return 1;
+    else
+       echo "block host contain $2"
+       return 0;
+    fi
+}
 

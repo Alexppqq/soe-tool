@@ -19,10 +19,10 @@ sleep 10
 ca_keep_check_in_file "State of driver-" "$global_case_log_dir/tmpOut" "1" "40"
 driverStatus=`ca_get_akka_driver_status $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver status: $driverStatus"
-[ -z $driverStatus ] &&   exit 1
+[ -z $driverStatus ] &&  ca_recover_and_exit 1
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
-[ -z $drivername ] &&   exit 1
+[ -z $drivername ] &&   ca_recover_and_exit 1
 
 ca_keep_check_in_file "Starting task" "$SPARK_HOME/work/$drivername/stderr" "1" "40"
 sleep 3

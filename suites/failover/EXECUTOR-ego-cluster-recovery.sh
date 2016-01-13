@@ -19,10 +19,10 @@ sleep 10
 ca_keep_check_in_file "Driver container state has changed to RUN" "$global_case_log_dir/tmpOut" "1" "40"
 driverStatus=`ca_get_nonmaster_driver_status $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver status: $driverStatus"
-[ -z $driverStatus ] &&   exit 1
+[ -z $driverStatus ] &&   ca_recover_and_exit 1
 drivername=`ca_get_nonmaster_driver_stderr $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
-[ -z $drivername ] &&   exit 1
+[ -z $drivername ] &&   ca_recover_and_exit 1
 ca_keep_check_in_file "Starting task" "/tmp/logs/$drivername" "1" "60"
 sleep 3
 ca_kill_process_by_SPARK_HOME "executor-id"
