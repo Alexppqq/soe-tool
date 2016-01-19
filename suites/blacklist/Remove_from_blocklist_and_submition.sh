@@ -12,12 +12,15 @@ ca_filter_only_singleHost
 sc_backup_spark_conf;
 sc_update_to_spark_env "SPARK_EGO_ENABLE_BLOCKHOST" "true"
 sc_restart_master_by_ego_service
-sleep 10
+sleep 5
 ca_add_host_to_blocklist_by_exception
+sleep 3
 egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
 alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
+echo $alloc_id
+echo $SYM_MASTER_HOST
 egosh alloc unblock -a $alloc_id -n 1 $SYM_MASTER_HOST
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 [[ $? == 0 ]] && echo "remove from block list fail" && ca_recover_and_exit 1; 

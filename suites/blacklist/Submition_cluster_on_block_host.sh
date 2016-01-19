@@ -17,7 +17,7 @@ ca_add_host_to_blocklist_by_exception
 egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
 alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
-ca_check_blocklist_after_submission "$alloc_id" "red01"
+ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"

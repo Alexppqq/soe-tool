@@ -18,15 +18,16 @@ sleep 10
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
 
-$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 2 60000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 2 40000 &>> $global_case_log_dir/tmpOut &
 sleep 10
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 [[ $? == 1 ]] && echo "no stating task, case failed" && ca_recover_and_exit 1;
-ca_add_host_to_blocklist_by_exception
+#ca_add_host_to_blocklist_by_exception
 sleep 3
 egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
 alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
+egosh alloc block -a $alloc_id $SYM_MASTER_HOST
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "1" >> /dev/null
 [[ $? == 0 ]] && echo "Job has done, case failed" && ca_recover_and_exit 1;
