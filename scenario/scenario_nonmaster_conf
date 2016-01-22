@@ -17,6 +17,8 @@ echo "$global_scenario_name - update spark conf"
 sc_update_to_spark_env "JAVA_HOME" "$JAVA_HOME"
 sc_update_to_spark_env "HADOOP_CONF_DIR" "$HADOOP_HOME/etc/hadoop"
 sc_update_to_spark_default "spark.master" "ego-client"
+sc_comment_out_in_spark_default "spark.local.dir"
+sc_comment_out_in_spark_env "SPARK_LOCAL_DIR"
 #default policy
 
 #log level

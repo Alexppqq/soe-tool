@@ -14,21 +14,33 @@ source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-#$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 >>  $global_case_log_dir/stdout 2>> $global_case_log_dir/stderr
-$SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut
-sleep 10
-driverStatus=`ca_get_nonmaster_driver_status $global_case_log_dir/tmpOut`
-echo "$global_case_name - driver status: $driverStatus"
-[ -z $driverStatus ] &&   exit 1
-#driverid=`ca_get_nonmaster_driver_id $global_case_log_dir/tmpOut`
+$SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut  &
+appID=$! 
+sleep 3
+ca_keep_check_in_file "alloc" "$global_case_log_dir/tmpOut" "1" "40"
+driverClientName=`egosh client list -ll| awk -F ',' '/EGOCLIENT/ {print $1}'|sed 's/"//g'`
+execClientName=`egosh client list -ll| awk -F ',' '/SPARKDRIVER/ {print $1}'|sed 's/"//g'`
+echo $appID >> $global_case_log_dir/infoWorkload
+echo $driverClientName
+echo $execClientName
+echo $driverClientName >> $global_case_log_dir/infoWorkload
+echo $execClientName >> $global_case_log_dir/infoWorkload
+
+sleep 3
 drivername=`ca_get_nonmaster_driver_stdout $global_case_log_dir/tmpOut`
-echo "$global_case_name - driver name: $drivername" 
-[ -z $drivername ] &&   exit 1
-sleep 20
-#lineOutput=`ca_find_by_key_word /tmp/logs/$drivername "Job done"|wc -l`
-ca_assert_file_contain_key_word /tmp/logs/$drivername "Job done" "ego-cluster sleep job failed"
+[ -z $drivername ] && ca_assert_case_fail "no driver name found." && ca_recover_and_exit 1
+
+echo "$global_case_name - driver name: $drivername"  
+ca_keep_check_in_file "Job done" "/tmp/logs/$drivername" "1" "40"
+
 echo "$global_case_name - write report"
-#ca_assert_num_ge $lineOutput 1 "job not done."
+ca_assert_file_contain_key_word "/tmp/logs/$drivername" "Job done" "ego-cluster sleep job failed"
 
 echo "$global_case_name - end" 
+if [[ `ps $appID|wc -l` == 2 ]]; then
+   ps $appID 
+   kill -9 $appID
+   egosh client rm $driverClientName
+   egosh client rm $execClientName
+fi
 ca_recover_and_exit 0;

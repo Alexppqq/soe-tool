@@ -109,6 +109,8 @@ cat $global_report_dir/caseList | while read global_case_name; do
        SECONDS=0 #system var to trace running time
        ./$global_case_name  1> $global_case_log_dir/stdout 2> $global_case_log_dir/stderr &
        casePid=$!
+#       casePgid=$(ps opgid= $casePid)
+#       ps fj
     fi
     while [[ -n `ps $casePid|grep $casePid` && "$SECONDS" -le "$CASE_RUNNING_TIMEOUT" ]]; do
       #echo -n "${SECONDS} -"; ps $casePid|grep $casePid
@@ -119,7 +121,12 @@ cat $global_report_dir/caseList | while read global_case_name; do
     done
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
        echo " timeout."
-       kill -9 $casePid  
+       kill -9 $casePid
+#       kill -- -"$casePgid"
+       cat $global_case_log_dir/caseID.txt
+       kill -9 `cat $global_case_log_dir/infoWorkload|awk 'NR==1 {print}' `
+       egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==2 {print}' `
+       egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==3 {print}' `
        sc_recover_spark_conf
        fw_report_save_case_result_in_file $global_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
     elif [[  ! -f $global_case_log_dir/caseResult ]]; then
