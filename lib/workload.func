@@ -14,13 +14,45 @@ function ca_get_nonmaster_driver_status ()
       return 1
    fi
 }
+function ca_get_nonmaster_driver_alloc_id ()
+{
+   if [[ -f $1 ]]; then
+      local driveralloc=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
+      local driverallocid="${driveralloc#*=}"
+      echo "${driverallocid}"
+   else
+      echo "error: ca_get_nonmaster_driver_alloc_id: please specify a file."  1>&2
+      return 1;
+   fi
+}
+function ca_get_nonmaster_driver_ego_client ()
+{
+   if [[ -f $1 ]]; then
+      local driverallocid=`ca_get_nonmaster_driver_alloc_id $1`
+      egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
+      local tmp_driver_ego_client=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "ALLOC,${driverallocid}" "CLIENT" )
+      local driver_ego_client="${tmp_driver_ego_client#*:}"
+      echo "$driver_ego_client"
+   else
+      echo "error: ca_get_nonmaster_driver_ego_client: please specify a file."  1>&2
+      return 1;
+   fi
+}
+function ca_get_nonmaster_executor_ego_client ()
+{
+   if [[ -f $1 ]]; then
+      awk '/client name is/{ for(i=0;i<NF;++i){if($i~"^SPARKDRIVER*"){print $i}}}' $1 |sed 's/,//g'
+   else
+      echo "error: ca_get_nonmaster_executor_ego_client: please specify a file."  1>&2
+      return 1;
+   fi
+}
 function ca_get_nonmaster_driver_stderr ()
 {
    if [[ -f $1 ]]; then
-      local driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
-      local drivername="spark-driver-alloc-"${driverid#*=}".stderr"
-      #echo "driver name: $drivername"
-      echo ${drivername}
+      local driverallocid=`ca_get_nonmaster_driver_alloc_id $1`
+      local driverstderr="spark-driver-alloc-${driverallocid}.stderr"
+      echo ${driverstderr}
    else
       echo "error: ca_get_nonmaster_driver_stderr: please specify a file."  1>&2
       return 1;
@@ -29,10 +61,9 @@ function ca_get_nonmaster_driver_stderr ()
 function ca_get_nonmaster_driver_stdout ()
 {
    if [[ -f $1 ]]; then
-      local driverid=`grep "Got allocation id=" $1 | awk '{ print $(NF-2) }'`
-      local drivername="spark-driver-alloc-"${driverid#*=}".stdout"
-      #echo "driver name: $drivername" 
-      echo ${drivername}
+      local driverallocid=`ca_get_nonmaster_driver_alloc_id $1`
+      local driverstdout="spark-driver-alloc-${driverallocid}.stdout"
+      echo ${driverstdout} 
    else
       echo "error: ca_get_nonmaster_driver_stdout: please specify a file." 1>&2
       return 1;

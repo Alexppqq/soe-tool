@@ -18,29 +18,26 @@ $SPARK_HOME/bin/spark-submit --conf spark.master=ego-cluster  --class job.submit
 appID=$! 
 sleep 3
 ca_keep_check_in_file "alloc" "$global_case_log_dir/tmpOut" "1" "40"
-driverClientName=`egosh client list -ll| awk -F ',' '/EGOCLIENT/ {print $1}'|sed 's/"//g'`
-execClientName=`egosh client list -ll| awk -F ',' '/SPARKDRIVER/ {print $1}'|sed 's/"//g'`
-echo $appID >> $global_case_log_dir/infoWorkload
-echo $driverClientName
-echo $execClientName
-echo $driverClientName >> $global_case_log_dir/infoWorkload
-echo $execClientName >> $global_case_log_dir/infoWorkload
 
 sleep 3
-drivername=`ca_get_nonmaster_driver_stdout $global_case_log_dir/tmpOut`
-[ -z $drivername ] && ca_assert_case_fail "no driver name found." && ca_recover_and_exit 1
+driverstdout=`ca_get_nonmaster_driver_stdout $global_case_log_dir/tmpOut`
+echo $driverstdout
+[ -z $driverstdout ] && ca_assert_case_fail "no driver stderr found." && kill -9 $appID && ca_recover_and_exit 1; 
 
-echo "$global_case_name - driver name: $drivername"  
-ca_keep_check_in_file "Job done" "/tmp/logs/$drivername" "1" "40"
+driverClientName=`ca_get_nonmaster_driver_ego_client "$global_case_log_dir/tmpOut"`
+echo $driverClientName >> $global_case_log_dir/infoWorkload
+
+echo "$global_case_name - driver name: $driverstdout"  
+ca_keep_check_in_file "Job done" "/tmp/logs/$driverstdout" "1" "40"
 
 echo "$global_case_name - write report"
-ca_assert_file_contain_key_word "/tmp/logs/$drivername" "Job done" "ego-cluster sleep job failed"
+ca_assert_file_contain_key_word "/tmp/logs/$driverstdout" "Job done" "ego-cluster sleep job failed"
 
 echo "$global_case_name - end" 
+echo `ps $appID`
 if [[ `ps $appID|wc -l` == 2 ]]; then
    ps $appID 
    kill -9 $appID
    egosh client rm $driverClientName
-   egosh client rm $execClientName
 fi
 ca_recover_and_exit 0;
