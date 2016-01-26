@@ -29,8 +29,8 @@ function ca_get_nonmaster_driver_ego_client ()
 {
    if [[ -f $1 ]]; then
       local driverallocid=`ca_get_nonmaster_driver_alloc_id $1`
-      egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
-      local tmp_driver_ego_client=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "ALLOC,${driverallocid}" "CLIENT" )
+      egosh alloc list -ll > $global_case_log_dir/alloc.csv
+      local tmp_driver_ego_client=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $global_case_log_dir/alloc.csv "ALLOC,${driverallocid}" "CLIENT" )
       local driver_ego_client="${tmp_driver_ego_client#*:}"
       echo "$driver_ego_client"
    else
@@ -749,4 +749,11 @@ rm -rf $TEST_TOOL_HOME/data/alloc_view
        return 0;
     fi
 }
-
+function ca_kill_spark_shell_process ()
+{
+  ps ux|grep "$SPARK_HOME/bin/spark-shell"|grep -v "grep"|awk -F ' ' '{print "kill -9 " $2}'|bash
+}
+function ca_kill_pyspark_process ()
+{
+  ps ux|grep "$SPARK_HOME/bin/pyspark"|grep -v "grep"|awk -F ' ' '{print "kill -9 " $2}'|bash
+}

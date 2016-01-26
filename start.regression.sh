@@ -122,11 +122,10 @@ cat $global_report_dir/caseList | while read global_case_name; do
     if [[ "$SECONDS" -gt "$CASE_RUNNING_TIMEOUT" ]]; then
        echo " timeout."
        kill -9 $casePid
-#       kill -- -"$casePgid"
-       cat $global_case_log_dir/caseID.txt
-       kill -9 `cat $global_case_log_dir/infoWorkload|awk 'NR==1 {print}' `
-       egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==2 {print}' `
-       egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==3 {print}' `
+       #below 3 sentences kill workload for ego-cluster mode, rarely to use if run ego-cluster workload with &, so comment out it
+       #kill -9 `cat $global_case_log_dir/infoWorkload|awk 'NR==1 {print}' `
+       #egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==2 {print}' `
+       #egosh client rm `cat $global_case_log_dir/infoWorkload|awk 'NR==3 {print}' `
        sc_recover_spark_conf
        fw_report_save_case_result_in_file $global_case_name "Timeout" "case runs over ${CASE_RUNNING_TIMEOUT}s."
     elif [[  ! -f $global_case_log_dir/caseResult ]]; then

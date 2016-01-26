@@ -22,21 +22,18 @@ $HADOOP_HOME/bin/hadoop fs -copyFromLocal $SPARK_HOME/data/mllib/pagerank_data.t
 $HADOOP_HOME/bin/hadoop fs -ls $inputFile
 
 echo "$global_case_name - sbumit job"
-ca_spark_shell_run_wordcount $inputFile $outputDir &>> $global_case_log_dir/tmpOut 
+ca_spark_shell_run_wordcount $inputFile $outputDir &>> $global_case_log_dir/tmpOut &
 sleep 5
-ca_assert_file_exist_in_hdfs "$outputDir" "part-" "spark shell run wordcount can't find output file "
-#tmpOut=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir| grep "part-"`
-#lineOutput=`$HADOOP_HOME/bin/hadoop fs -ls $outputDir| grep "part-"|wc -l`
-#echo $tmpOut
-#echo $lineOutput
+ca_keep_check_in_file "onStageCompleted: stageId(3)" "$global_case_log_dir/tmpOut" "1" "80"
 
+sleep 5
 echo "$global_case_name - write report"
-#ca_assert_num_ge $lineOutput 1 "job not done."
+ca_assert_file_exist_in_hdfs "$outputDir" "part-" "spark shell run wordcount can't find output file."
 
 echo "$global_case_name - cleanup HDFS files"
 $HADOOP_HOME/bin/hadoop fs -rm -r $inputFile &>> /dev/null
 $HADOOP_HOME/bin/hadoop fs -rm -r $outputDir &>> /dev/null
 
 echo "$global_case_name - end" 
+ca_kill_spark_shell_process
 ca_recover_and_exit 0;
-

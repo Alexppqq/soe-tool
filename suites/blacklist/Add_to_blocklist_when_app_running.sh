@@ -24,8 +24,8 @@ ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 [[ $? == 1 ]] && echo "no stating task, case failed" && ca_recover_and_exit 1;
 #ca_add_host_to_blocklist_by_exception
 sleep 3
-egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
-alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
+egosh alloc list -ll > $global_case_log_dir/alloc.csv
+alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $global_case_log_dir/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
 egosh alloc block -a $alloc_id $SYM_MASTER_HOST
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
@@ -40,7 +40,7 @@ else
     ca_assert_case_fail "The running job failed when host add to blocklist"
 fi
 #recovery
-rm -rf $TEST_TOOL_HOME/data/alloc.csv
+rm -rf $global_case_log_dir/alloc.csv
 ca_kill_process_by_SPARK_HOME "submit" >>/dev/null
 sc_restart_master_by_ego_service
 sleep 10

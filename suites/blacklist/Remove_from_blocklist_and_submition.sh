@@ -15,8 +15,8 @@ sc_restart_master_by_ego_service
 sleep 5
 ca_add_host_to_blocklist_by_exception
 sleep 3
-egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
-alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
+egosh alloc list -ll > $global_case_log_dir/alloc.csv
+alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $global_case_log_dir/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 echo $alloc_id
@@ -42,7 +42,7 @@ else
     ca_assert_case_fail "Job not done or block list recovery automatically"
 fi
 #recovery
-rm -rf $TEST_TOOL_HOME/data/alloc.csv
+rm -rf $global_case_log_dir/alloc.csv
 sc_restart_master_by_ego_service
 sleep 10
 echo "$global_case_name - end"

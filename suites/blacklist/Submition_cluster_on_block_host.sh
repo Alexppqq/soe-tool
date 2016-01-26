@@ -14,8 +14,8 @@ sc_update_to_spark_env "SPARK_EGO_ENABLE_BLOCKHOST" "true"
 sc_restart_master_by_ego_service
 sleep 10
 ca_add_host_to_blocklist_by_exception
-egosh alloc list -ll > $TEST_TOOL_HOME/data/alloc.csv
-alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
+egosh alloc list -ll > $global_case_log_dir/alloc.csv
+alloc_id=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $global_case_log_dir/alloc.csv "RGROUP,ComputeHosts" 'ALLOC' )
 alloc_id=${alloc_id#*:}
 ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 #run case
@@ -40,7 +40,7 @@ else
 fi
 echo "$global_case_name - end"
 #recovery
-rm -rf $TEST_TOOL_HOME/data/alloc.csv
+rm -rf $global_case_log_dir/alloc.csv
 ca_kill_process_by_SPARK_HOME "submit"
 sc_restart_master_by_ego_service
 sleep 10
