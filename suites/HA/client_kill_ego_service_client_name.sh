@@ -14,7 +14,7 @@ sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 sc_restart_master_by_ego_service
-sleep 5
+sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
@@ -23,8 +23,8 @@ appID=$!
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 res1=$?
-ca_kill_process_by_SPARK_HOME "port 7077"
-ca_keep_check_in_file "EGOAppclient entry and driverId is null" "$global_case_log_dir/tmpOut" "1" "40"
+ca_kill_process_by_SPARK_HOME "\-\-webui\-port"
+ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
 ClientName=$( grep "EGO Client registration" $MASTER_LOG|awk '{ print $NF }' )
 res3=`echo $ClientName|grep "null"`

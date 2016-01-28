@@ -34,7 +34,7 @@ sleep 3
 python /usr/local/gaop/running/lib/common/port_occupy.py 8080 &
 $SPARK_HOME/sbin/start-master.sh
 
-ca_keep_check_in_file "EGOAppclient entry and driverId is null" "$global_case_log_dir/tmpOut" "1" "40"
+ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
 ca_keep_check_in_file "Job done" "$global_case_log_dir/tmpOut" "1" "40"
 res3=$?

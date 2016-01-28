@@ -27,7 +27,7 @@ sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 res1=$?
 sc_restart_master_by_script
-ca_keep_check_in_file "EGOAppclient entry and driverId is null" "$global_case_log_dir/tmpOut" "1" "40"
+ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
 ca_keep_check_in_file "Release 2 on" "$MASTER_LOG" "1" "40"
 res3=$?

@@ -14,7 +14,7 @@ sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 sc_restart_master_by_ego_service
-sleep 5
+sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
@@ -27,7 +27,7 @@ drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername"
 ca_keep_check_in_file "Starting task" "$SPARK_HOME/work/$drivername/stderr" "1" "40"
 res1=$?
-ca_kill_process_by_SPARK_HOME "port 7077"
+ca_kill_process_by_SPARK_HOME "\-\-webui\-port"
 ca_keep_check_in_file "Master has changed" "$SPARK_HOME/work/$drivername/stderr" "1" "40"
 res2=$?
 ca_keep_check_in_file "Release 2 on" "$MASTER_LOG" "1" "40"
