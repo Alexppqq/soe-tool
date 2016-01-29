@@ -96,6 +96,12 @@ echo "please find detail case log under $global_report_dir/logs/"
 global_case_name="" #take script file name as case name
 global_case_result="" #valid value: Pass, Fail, Skip, Timeout
 global_case_result_reason=""  #explain reason of result, especially fail reason
+
+global_case_pass=0
+global_case_fail=0
+global_case_skip=0
+global_case_timeout=0
+
 cat $global_report_dir/caseList | while read global_case_name; do
     echo -n "run $global_case_name "
     if [[ ! -d $global_report_dir/logs/$global_case_name || ! -x $global_report_dir/logs/$global_case_name ]]; then
@@ -139,5 +145,5 @@ done
 
 # Statistic Case Result
 fw_report_calculate_statis
-
+fw_report_create_html_report
 exit 0

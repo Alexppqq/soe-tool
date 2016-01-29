@@ -34,7 +34,7 @@ function ca_recover_and_exit ()
 }
 function fw_report_write_title ()
 {
-  local dateBeginRegression=`date`
+  global_test_start_time=`date`
   echo "---------------------------------------------------------------------"   &>> $global_test_report
   echo ""  &>> $global_test_report
   echo "                      Regression Test Report       "   &>> $global_test_report
@@ -43,7 +43,7 @@ function fw_report_write_title ()
   echo -n "     Ego Version: " &>> $global_test_report; egosh -V 1>/dev/null 2>> $global_test_report
   echo  "" >> $global_test_report
   echo -e "     SparkOnEgo Version: "`$SPARK_HOME/bin/spark-submit --egoversion`  &>> $global_test_report
-  echo -e "     Date: " $dateBeginRegression  &>> $global_test_report
+  echo -e "     Date: " $global_test_start_time  &>> $global_test_report
   echo "---------------------------------------------------------------------"   &>> $global_test_report
 }
 function fw_report_save_case_result_in_file ()
@@ -61,9 +61,11 @@ function fw_report_write_case_result_to_report ()
 {
   if [[ -f $global_case_log_dir/caseResult ]]; then
      cat $global_case_log_dir/caseResult | while read line; do
-     echo -e "$line \c" >> $global_test_report
+         echo -e "$line \c" >> $global_test_report
+         echo -e "$line \c" >> $global_report_dir/caseResultList
      done
      echo  "" >> $global_test_report #newline
+     echo  "" >> $global_report_dir/caseResultList
      rm -rf $global_case_log_dir/caseResult
   else
      echo "error: file of case result ($global_case_log_dir/caseResult) cannot be found."
@@ -71,24 +73,25 @@ function fw_report_write_case_result_to_report ()
 }
 function fw_report_calculate_statis ()
 {
+  global_test_end_time=`date`
   #could rewrite it with grep -c
-  local casesPassed=`sed -n '/Pass/'p $global_report_dir/testReport.txt | wc -l`
-  local casesFailed=`sed -n '/Fail/'p $global_report_dir/testReport.txt | wc -l`
-  local casesSkipped=`sed -n '/Skip/'p $global_report_dir/testReport.txt | wc -l`
-  local casesTimeout=`sed -n '/Timeout/'p $global_report_dir/testReport.txt | wc -l`
-  local casesTotal=`expr $casesPassed + $casesFailed + $casesTimeout`
-  local passRate=0
-  if [[ "$casesTotal" -gt "0" ]]; then
-     passRate=`awk 'BEGIN{printf "%.2f%%",('$casesPassed' * 100 / '$casesTotal')}'`   
+  global_case_pass=`sed -n '/Pass/'p $global_report_dir/caseResultList | wc -l`
+  global_case_fail=`sed -n '/Fail/'p $global_report_dir/caseResultList | wc -l`
+  global_case_skip=`sed -n '/Skip/'p $global_report_dir/caseResultList | wc -l`
+  global_case_timeout=`sed -n '/Timeout/'p $global_report_dir/caseResultList | wc -l`
+  global_case_total=`expr $global_case_pass + $global_case_fail + $global_case_timeout`
+  global_case_pass_rate=0
+  if [[ "$global_case_total" -gt "0" ]]; then
+     global_case_pass_rate=`awk 'BEGIN{printf "%.2f%%",('$global_case_pass' * 100 / '$global_case_total')}'`   
   fi
   echo "----------------------------------------------------------------------"   &>> $global_test_report
   echo ""   &>> $global_test_report
-  echo "     Total: $casesTotal" &>> $global_test_report
-  echo "     Pass: $casesPassed" &>> $global_test_report
-  echo "     Fail: $casesFailed" &>> $global_test_report
-  echo "     Timeout: $casesTimeout" &>> $global_test_report
-  echo "     Skip: $casesSkipped" &>>  $global_test_report
-  echo "     Pass Rate(Pass/<Fail+Timeout>): $passRate" &>> $global_test_report
+  echo "     Total: $global_case_total" &>> $global_test_report
+  echo "     Pass: $global_case_pass" &>> $global_test_report
+  echo "     Fail: $global_case_fail" &>> $global_test_report
+  echo "     Timeout: $global_case_timeout" &>> $global_test_report
+  echo "     Skip: $global_case_skip" &>>  $global_test_report
+  echo "     Pass Rate(Pass/<Fail+Timeout>): $global_case_pass_rate" &>> $global_test_report
   echo ""   &>> $global_test_report
   echo "----------------------------------------------------------------------"   &>> $global_test_report
 }
@@ -379,4 +382,26 @@ function fw_get_hadoop_version ()
     echo "error: $HADOOP_HOME/bin/hadoop does not exist or has no executable right." >&2
   fi
   echo $hadoop_version
+}
+function fw_report_create_html_report ()
+{
+if [[ -f $TEST_TOOL_HOME/conf/soe_report.html.template ]]; then
+   cp $TEST_TOOL_HOME/conf/soe_report.html.template $global_report_dir/soe_report.html
+   sed -i 's#{SPARK_HOME}#'$SPARK_HOME'#g' $global_report_dir/soe_report.html
+   sed -i 's/{global_ego_version}/'$global_ego_version'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_spark_version}/'$global_spark_version'/g' $global_report_dir/soe_report.html
+   sed -i 's#{global_soe_version}#'"$global_soe_version"'#g' $global_report_dir/soe_report.html
+   sed -i 's/{global_test_start_time}/'"$global_test_start_time"'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_test_end_time}/'"$global_test_end_time"'/g' $global_report_dir/soe_report.html
+   sed -i 's#{global_report_dir}#'$global_report_dir'#g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_total}/'$global_case_total'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_pass_rate}/'$global_case_pass_rate'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_pass}/'$global_case_pass'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_fail}/'$global_case_fail'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_timeout}/'$global_case_timeout'/g' $global_report_dir/soe_report.html
+   sed -i 's/{global_case_skip}/'$global_case_skip'/g' $global_report_dir/soe_report.html
+   echo "please find html report at $global_report_dir/soe_report.html"
+else
+    echo "error: soe_report.html.template doesnot exist, cannot create report in html."
+fi   
 }
