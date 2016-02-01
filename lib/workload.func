@@ -813,3 +813,67 @@ function ca_spark_shell_async_run_sleep_masterHA_script ()
   exit
 END
 }
+function ca_spark_shell_new_job_after_masterHA_script ()
+{
+  if [[ "$#" -ne 3 && "$#" -ne 4 ]]; then
+    echo -e "usage: ca_spark_shell_run_sleep: ca_spark_shell_run_sleep taskNumber taskRunningTime masterPID <end_condition>\n  \
+                    the valid value of taskType is 'sync' and 'async'"  1>&2
+    return 1
+  fi
+
+  local taskNum=$1
+  local taskRunTime=$2
+  local taskType="countAsync"
+  local end_condition=${4:-"onStageCompleted: stageId"}
+
+  expect<<- END
+  spawn $SPARK_HOME/bin/spark-shell
+  set timeout -1
+  expect "scala>"
+  send "var numTasks = ${taskNum}\n"
+  expect "scala>"
+  send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(${taskRunTime}); i }.${taskType}()\n"
+  expect "Starting task 3.0"
+  sleep 3
+  send "\nimport scala.sys.process._\n"
+  send "\n\"kill -9 $3\" !\n"
+  send "\n\"$SPARK_HOME/sbin/start-master.sh\" !\n"
+  expect "onStageCompleted: stageId"
+  send "\n"
+  expect "scala>"
+  send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(1000); i }.${taskType}()\n"
+  expect "${end_condition}"
+  exit
+END
+}
+function ca_spark_shell_new_job_after_masterHA ()
+{
+  if [[ "$#" -ne 3 && "$#" -ne 4 ]]; then
+    echo -e "usage: ca_spark_shell_run_sleep: ca_spark_shell_run_sleep taskNumber taskRunningTime masterPID <end_condition>\n  \
+                    the valid value of taskType is 'sync' and 'async'"  1>&2
+    return 1
+  fi
+
+  local taskNum=$1
+  local taskRunTime=$2
+  local taskType="countAsync"
+  local end_condition=${4:-"onStageCompleted: stageId"}
+
+  expect<<- END
+  spawn $SPARK_HOME/bin/spark-shell
+  set timeout -1
+  expect "scala>"
+  send "var numTasks = ${taskNum}\n"
+  expect "scala>"
+  send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(${taskRunTime}); i }.${taskType}()\n"
+  expect "Starting task 3.0"
+  send "\nimport scala.sys.process._\n"
+  send "\n\"kill -9 $3\" !\n"
+  expect "onStageCompleted: stageId"
+  send "\n"
+  expect "scala>"
+  send "var f = sc.parallelize(1 to numTasks, numTasks).map { i => Thread.sleep(1000); i }.${taskType}()\n"
+  expect "${end_condition}"
+  exit
+END
+}

@@ -9,7 +9,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf
+sc_backup_spark_conf;
 sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 mkdir /tmp/recovery
@@ -21,22 +21,23 @@ echo "$global_case_name - begin"
 echo "$global_case_name - sbumit job"
 masterPID=$( ps -ux |grep "\-\-webui\-port" |grep -v grep |grep $SPARK_HOME|awk '{ print $2 }' )
 [ $masterPID == "" ] && echo "masterPID is null" && ca_recover_and_exit 1;
-ca_spark_shell_async_run_sleep_masterHA 4 25000 $masterPID "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut  &
+ca_spark_shell_new_job_after_masterHA 4 25000 $masterPID "onStageCompleted: stageId(1)"  &>> $global_case_log_dir/tmpOut
 appID=$! 
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 res1=$?
-ca_kill_process_by_SPARK_HOME "\-\-webui\-port"
+###############driver and executor has same client name###############################
 ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
+ca_keep_check_in_file "onStageCompleted: stageId(1)" "$global_case_log_dir/tmpOut" "1" "40"
+res3=$?
 ClientName=$( grep "EGO Client registration" $MASTER_LOG|awk '{ print $NF }' )
-res3=`echo $ClientName|grep "null"`
 echo $appID >> $global_case_log_dir/infoWorkload
 echo $ClientName
 echo $ClientName >> $global_case_log_dir/infoWorkload
 sleep 3
 echo "$global_case_name - write report"
-if [[ $res1 == 0 && $res2 == 0 && $res3 == "" ]]; then
+if [[ $res1 == 0 && $res2 == 0 && $res3 == 0 ]]; then
     ca_assert_case_pass
 else
     ca_assert_case_fail "master recover to finish job failed"

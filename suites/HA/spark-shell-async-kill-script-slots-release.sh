@@ -24,7 +24,7 @@ echo "$global_case_name - begin"
 echo "$global_case_name - sbumit job"
 masterPID=$( ps -ux |grep "\-\-webui\-port" |grep -v grep |grep $SPARK_HOME|awk '{ print $2 }' )
 [ $masterPID == "" ] && echo "masterPID is null" && ca_recover_and_exit 1;
-ca_spark_shell_async_run_sleep_masterHA_script 4 40000 $masterPID "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut
+ca_spark_shell_async_run_sleep_masterHA_script 4 40000 $masterPID "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut  &
 appID=$! 
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
