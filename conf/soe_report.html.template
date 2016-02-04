@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+<meta http-equiv='Content-Type' content='text/html' />
+<title>SOAM regression test</title>
+<script src='../../lib/report.js' type='text/javascript'></script>
+<style type='text/css'>
+<!--
+body,p {font-family: verdana, sans-serif;font-size: 11px;}
+TABLE {BORDER-RIGHT: #000000 1px solid; BORDER-TOP: #000000 1px solid; BORDER-LEFT: #000000 1px solid;BORDER-BOTTOM: #000000 1px solid; BORDER-COLLAPSE: collapse;}
+TH { BORDER-RIGHT: #000000 1px solid;PADDING-RIGHT: 2px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 2px; PADDING-BOTTOM: 2px; BORDER-LEFT: #000000 1px solid; PADDING-TOP: 2px; BORDER-BOTTOM: #000000 1px solid; BACKGROUND-COLOR: #e5e5e5}
+TD {BORDER-RIGHT: #000000 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 2px; PADDING-BOTTOM: 2px;  BORDER-LEFT: #000000 1px solid; PADDING-TOP: 2px; BORDER-BOTTOM: #000000 1px solid; BACKGROUND-COLOR: #ffffff}
+--></style>
+</head>
+<body onload="changeCellColor('TableID')">
+<p> <strong>Test Report of &lt;SOE regression test&gt; </strong></p>
+<p>============================= 1. Summary =======================================<br>
+</p>
+<table border='1'>
+  <tr>
+<th width='201'>SparkOnEgo Version</th>
+<td width='410'>{global_soe_version}</td>
+</tr>
+  <tr>
+<th width='201'>Ego Version</th>
+<td width='410'>{global_ego_version}</td>
+</tr>
+  <tr>
+<th width='201'>Spark Version</th>
+<td width='410'>{global_spark_version}</td>
+</tr>
+  <tr>
+<th width='201'>Test Start Time</th>
+<td width='410'>{global_test_start_time}</td>
+</tr>
+  <tr>
+<th width='201'>Test End Time</th>
+<td width='410'>{global_test_end_time}</td>
+</tr>
+  <tr>
+<th width='201'>Detail Report Dir:</th>
+<td width='410'>{global_report_dir}</td>
+</tr>
+</table>
+<p>Plan Run CaseNumber:</p>
+<table border='1'>
+  <tr><th width='160' align='right'><p title='The casenumber of plan to run this time'>CaseNumber:</p></th><td width='100' align='right'>{global_case_total}</td></tr>
+</table>
+<p>Result Statistics:</p>
+<table border='1'>
+  <tr><th width='160' align='right'><p title='rate of [Passed] and [SemiAuto] cases'>Pass rate:</p></th><td width='100' align='right'>{global_case_pass_rate}</td></tr>
+
+  <tr><th align='right'>Total:</th><td align='right'>{global_case_total}</td></tr>
+  <tr><th align='right'>Passed:</th><td align='right'>{global_case_pass}</td></tr>
+  <tr><th align='right'>Failed:</th><td align='right'>{global_case_fail}</td></tr>
+  <tr><th align='right'>Timeout:</th><td align='right'>{global_case_timeout}</td></tr>
+  <tr><th align='right'>Skip:</th><td align='right'>{global_case_skip}</td></tr>
+</table>
+
+<p>&nbsp;</p>
+<p>============================= 2. Detail ========================================<br>
+ #  Passed: case completed, and its result is the same as expected<br>
+ #  Failed: case completed, and its result is different from expected<br>
+ #  Timeout: case did not fininsh in required time<br>
+ #  Skip: case did not run<br>
+ #  please find test plan for the pass/fail criteria</p>
+<table border='1' id="TableID">
+  <tr>
+    <th width='90' onclick="sortAble('TableID', 0)" style='cursor:pointer'>Case</th>
+    <th width='90' onclick="sortAble('TableID', 1)" style='cursor:pointer'>Result</th>
+    <th onclick="sortAble('TableID', 2)" style='cursor:pointer'>Reason if failed</th>
+    <!-- write result here-->
+
+
+</table>
+</body>
+</html>
+

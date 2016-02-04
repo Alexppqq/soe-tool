@@ -31,7 +31,7 @@ echo $shuffle
 
 
 $SPARK_HOME/bin/spark-submit --driver-memory 4g $SPARK_HOME/examples/src/main/python/mllib/word2vec.py $inputFile &>>$global_case_log_dir/tmpOut
-ca_keep_check_in_file "taiwan" "$global_case_log_dir/tmpOut"  "1" "100"
+ca_keep_check_in_file "taiwan" "$global_case_log_dir/tmpOut"  "1" "200"
 ca_assert_file_contain_key_word $global_case_log_dir/tmpOut "taiwan" "word2vec failed"
 echo "$global_case_name - write report"
 echo "$global_case_name - end" 

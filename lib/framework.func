@@ -60,12 +60,13 @@ function fw_report_save_case_result_in_file ()
 function fw_report_write_case_result_to_report ()
 {
   if [[ -f $global_case_log_dir/caseResult ]]; then
+     echo -e "<tr> \c" >> $global_report_dir/caseResultList
      cat $global_case_log_dir/caseResult | while read line; do
          echo -e "$line \c" >> $global_test_report
-         echo -e "$line \c" >> $global_report_dir/caseResultList
+         echo -e "<td>$line</td> \c" >> $global_report_dir/caseResultList
      done
      echo  "" >> $global_test_report #newline
-     echo  "" >> $global_report_dir/caseResultList
+     echo  "</tr>" >> $global_report_dir/caseResultList
      rm -rf $global_case_log_dir/caseResult
   else
      echo "error: file of case result ($global_case_log_dir/caseResult) cannot be found."
@@ -400,6 +401,7 @@ if [[ -f $TEST_TOOL_HOME/conf/soe_report.html.template ]]; then
    sed -i 's/{global_case_fail}/'$global_case_fail'/g' $global_report_dir/soe_report.html
    sed -i 's/{global_case_timeout}/'$global_case_timeout'/g' $global_report_dir/soe_report.html
    sed -i 's/{global_case_skip}/'$global_case_skip'/g' $global_report_dir/soe_report.html
+   sed -i '73 r '$global_report_dir'/caseResultList' $global_report_dir/soe_report.html
    echo "please find html report at $global_report_dir/soe_report.html"
 else
     echo "error: soe_report.html.template doesnot exist, cannot create report in html."
