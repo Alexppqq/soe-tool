@@ -150,3 +150,4 @@ if [ "$global_case_pass_rate" != "100%" ]; then
   exit 234
 else
   exit 0
+fi
