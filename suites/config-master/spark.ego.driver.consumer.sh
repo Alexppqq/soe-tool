@@ -32,7 +32,7 @@ echo "$global_case_name - begin"
 echo "$global_case_name - sbumit job"
 $SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 
-sleep 10
+sleep 15
 #get alloc info
 egosh alloc list -ll |grep "SPARK_RESMGR" > $global_case_log_dir/allocList
 

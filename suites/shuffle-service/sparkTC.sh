@@ -29,7 +29,7 @@ echo "$global_case_name - driver status: $driverStatus"
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
 
-ca_keep_check_in_file "edges" "$SPARK_HOME/work/$drivername/stdout"  "1" "100"
+ca_keep_check_in_file "edges" "$SPARK_HOME/work/$drivername/stdout"  "1" "240"
 ca_assert_file_contain_key_word $SPARK_HOME/work/$drivername/stdout  "edges" "sparkTC failed"
 echo "$global_case_name - write report"
 echo "$global_case_name - end" 
