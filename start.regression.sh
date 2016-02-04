@@ -146,4 +146,7 @@ done
 # Statistic Case Result
 fw_report_calculate_statis
 fw_report_create_html_report
-exit 0
+if [ "$global_case_pass_rate" != "100%" ]; then
+  exit 234
+else
+  exit 0
