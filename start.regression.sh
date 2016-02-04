@@ -146,8 +146,10 @@ done
 # Statistic Case Result
 fw_report_calculate_statis
 fw_report_create_html_report
+
+# return exit code to Jenkins build job if the code is not zero, the build job would be failure build. otherwise, it will be successful build.
 if [ "$global_case_pass_rate" != "100%" ]; then
-  exit 234
+  exit 1
 else
   exit 0
 fi
