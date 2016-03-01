@@ -1,0 +1,32 @@
+#!/bin/sh
+
+###############################
+###   test scenario
+###############################
+#   policy: fairshare
+#   slots reserve: no  
+###############################
+global_scenario_name=scenario_fairshare
+#source $TEST_TOOL_HOME/conf/environment.conf
+#source $TEST_TOOL_HOME/lib/framework.func
+
+echo "$global_scenario_name - backup spark conf files" 
+sc_backup_spark_conf;
+echo "$global_scenario_name - update spark conf" 
+#basic setting
+sc_update_to_spark_env "JAVA_HOME" "$JAVA_HOME"
+sc_update_to_spark_env "HADOOP_CONF_DIR" "$HADOOP_HOME/etc/hadoop"
+sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
+#policy
+sc_config_policy "dynamic"
+#policy conf
+sc_backup_spark_dynamic_conf
+sc_copy_spark_dynamic_conf
+#log level
+sc_open_debug_log_4tag
+echo "$global_scenario_name - make new conf take effect"
+sc_restart_master_by_ego_service
+sleep 10
+echo "$global_scenario_name - check if policy configured take effect"
+sc_verify_policy_take_effect "dynamic"
+

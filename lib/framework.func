@@ -23,6 +23,14 @@ function sc_recover_spark_conf ()
       exit 1;
    fi
 }
+function ca_recover_spark_dynamic_conf
+{
+   if [[ -f $SPARK_CONF_DIR/dynamic.conf.org.bak  ]]; then
+       mv -f $SPARK_CONF_DIR/dynamic.conf.org.bak $SPARK_CONF_DIR/dynamic.conf
+   else
+       rm -f $SPARK_CONF_DIR/dynamic.conf
+   fi
+}
 function ca_recover_and_exit ()
 {
    sc_recover_spark_conf
@@ -107,6 +115,24 @@ function sc_backup_spark_conf ()
    else  
       echo "error: sc_backup_spark_conf: cannot backup spark conf:spark-env.sh spark-defaults.conf log4j.properties" 
       exit 1
+   fi
+}
+function sc_backup_spark_dynamic_conf ()
+{
+   if [[ -f $SPARK_CONF_DIR/dynamic.conf ]]; then
+      cp -f $SPARK_CONF_DIR/dynamic.conf $SPARK_CONF_DIR/dynamic_conf.org.bak
+   fi
+}
+function sc_copy_spark_dynamic_conf ()
+{
+   if [[ -f $TEST_TOOL_HOME/conf/dynamic.conf ]]; then
+      cp -f $TEST_TOOL_HOME/conf/dynamic.conf $SPARK_CONF_DIR/dynamic.conf
+   fi
+}
+function sc_remove_spark_dynamic_conf ()
+{
+   if [[ -f $SPARK_CONF_DIR/dynamic.conf ]]; then
+      rm -rf $SPARK_CONF_DIR/dynamic.conf 
    fi
 }
 function fw_get_file_type ()
@@ -263,10 +289,10 @@ function ca_enable_shuffle_service ()
 
 function sc_open_debug_log_4tag ()
 {
-   ca_update_to_spark_log4j "org.apache.spark.util.EGOSparkJsonConfig" "DEBUG"
+#   ca_update_to_spark_log4j "org.apache.spark.util.EGOSparkJsonConfig" "DEBUG"
    ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.policy.hierarchy.PolicyHierarchy" "DEBUG"
-   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.EGOResourceManager" "DEBUG"
-   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.Master" "DEBUG"
+#   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.EGOResourceManager" "DEBUG"
+#   ca_update_to_spark_log4j "log4j.logger.org.apache.spark.deploy.master.Master" "DEBUG"
 }
 
 function sc_config_policy ()
