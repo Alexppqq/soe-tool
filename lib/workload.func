@@ -877,3 +877,22 @@ function ca_spark_shell_new_job_after_masterHA ()
   exit
 END
 }
+function ca_expect_ego_version_check ()
+{
+  if [[ "$#" -ne 2 || -z "$1" || -z "$2" ]]; then
+     echo "usage: ./ca_expect_ego_version_check  1)ego version 2)skip reason" 1>&2
+     exit 1;
+  else
+     local res=""
+     echo $global_ego_version
+     res=$( echo $global_ego_version|awk -F "." '{printf ("%1d.%1d\n",$1,$2 )}' )
+     if [[ "$res" != "$1" ]]; then
+         echo "case skiped, $2."
+         fw_report_save_case_result_in_file $global_case_name "Skip" "$2"
+         exit 1;
+     else
+         echo "ego version is meeted"
+     fi
+  fi
+}
+

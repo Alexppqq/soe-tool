@@ -33,6 +33,7 @@ source $EGO_TOP/profile.platform
 
 ### ego environment check
 global_ego_version=`fw_get_ego_version`
+export global_ego_version
 if [[ -z $global_ego_version ]]; then
    echo "EGO version is missed. please make sure EGO works well."
    exit 1

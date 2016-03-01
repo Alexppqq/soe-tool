@@ -7,7 +7,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 
 #calse filter
 ca_filter_only_singleHost
-
+ca_expect_ego_version_check "3.3" "ego version don't match"
 #run scenario
 sc_backup_spark_conf;
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"

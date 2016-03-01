@@ -7,7 +7,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 
 #calse filter
 ca_filter_only_singleHost
-
+echo $global_ego_version
 #run scenario
 sc_backup_spark_conf;
 sc_update_to_spark_env "SPARK_EGO_ENABLE_BLOCKHOST" "true"
@@ -21,8 +21,17 @@ $SPARK_HOME/bin/spark-submit --conf spark.ego.enable.blockhost=false --conf spar
 sleep 2
 ca_keep_check_in_file "is added into Block Host list" "$global_case_log_dir/tmpOut" "1" "100" 
 res1=$?
-ca_keep_check_in_file "Startup command does not exist" "$global_case_log_dir/tmpOut" "1" "100"
-res2=$?
+echo $global_ego_version
+if [[ $global_ego_version == 3.1.?.? ]]; then 
+    ca_keep_check_in_file "Startup command does not exist" "$global_case_log_dir/tmpOut" "1" "100"
+    res2=$?
+elif [[ $global_ego_version == 3.3.?.? ]]; then
+    ca_keep_check_in_file "Command not executed" "$global_case_log_dir/tmpOut" "1" "100"
+    res2=$?
+else
+    res2=1
+    echo "add to blacklist reason not match"
+fi
 echo "$global_case_name - write report"
 if [[ $res1 == 0 && $res2 == 0 ]]; then
     ca_assert_case_pass

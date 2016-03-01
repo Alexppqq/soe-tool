@@ -7,7 +7,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 
 #calse filter
 ca_filter_only_singleHost
-
+ca_expect_ego_version_check "3.3" "ego version don't match"
 #run scenario
 sc_backup_spark_conf;
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
@@ -18,7 +18,7 @@ sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut  &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 40000 &>> $global_case_log_dir/tmpOut  &
 appID=$! 
 sleep 3
 ca_keep_check_in_file "RUNNING" "$global_case_log_dir/tmpOut" "1" "40"

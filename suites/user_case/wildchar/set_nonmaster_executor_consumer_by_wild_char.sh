@@ -7,7 +7,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 
 #case filter
 ca_filter_only_singleHost 
-
+ca_expect_ego_version_check "3.3" "ego version don't match"
 #run scenario
 source $TEST_TOOL_HOME/scenario/scenario_nonmaster_conf 
 
@@ -36,7 +36,7 @@ egosh alloc list -ll |grep "$randomConsumer"
 egosh alloc list -ll |grep "SPARKDRIVER:" > $global_case_log_dir/allocList
 
 echo "$global_case_name - write report"
-ca_assert_file_contain_key_word "$global_case_log_dir/allocList" "/A$randomConsumer" "consumer does not take effect"
+ca_assert_file_contain_key_word "$global_case_log_dir/allocList" "/A$randomConsumer" "consumer does not take effect,please check the ego install pakage date by egosh -V, thedata should be after jan 25 2016"
 echo "$global_case_name - end" 
 ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep
 appPID=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
