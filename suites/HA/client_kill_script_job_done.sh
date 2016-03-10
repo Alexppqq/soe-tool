@@ -9,7 +9,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf;
+source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"

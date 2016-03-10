@@ -13,7 +13,7 @@ sc_update_to_spark_env "JAVA_HOME" "$JAVA_HOME"
 sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
 
 # change log level to ERROR
-#ca_update_to_spark_log4j "log4j.rootCategory" "ERROR"
-ca_update_to_spark_log4j "log4j.appender.console.layout.ConversionPattern" "%r %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n"
+ca_update_to_spark_log4j "log4j.rootCategory" "DEBUG, console"
+#ca_update_to_spark_log4j "log4j.appender.console.layout.ConversionPattern" "%r %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n"
 
 
