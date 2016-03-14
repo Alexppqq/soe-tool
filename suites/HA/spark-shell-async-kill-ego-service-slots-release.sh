@@ -9,19 +9,22 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf;
+source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
+rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 sc_restart_master_by_ego_service
+ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"
+[ $? == 1 ] && echo "start master by ego failed" && ca_recover_and_exit 1
 sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
 masterPID=$( ps -ux |grep "\-\-webui\-port" |grep -v grep |grep $SPARK_HOME|awk '{ print $2 }' )
 [ $masterPID == "" ] && echo "masterPID is null" && ca_recover_and_exit 1;
-ca_spark_shell_async_run_sleep_masterHA 4 25000 $masterPID "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut  &
+ca_spark_shell_async_run_sleep_masterHA 4 40000 $masterPID "onStageCompleted: stageId(0)"  &>> $global_case_log_dir/tmpOut  &
 appID=$! 
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
@@ -29,7 +32,7 @@ res1=$?
 ca_kill_process_by_SPARK_HOME "\-\-webui\-port"
 ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
-ca_keep_check_in_file "Release 3 on" "$MASTER_LOG" "1" "40"
+ca_keep_check_in_file "Release 4 on" "$MASTER_LOG" "1" "40"
 res3=$?
 ClientName=$( grep "EGO Client registration" $MASTER_LOG|awk '{ print $NF }' )
 sleep 3

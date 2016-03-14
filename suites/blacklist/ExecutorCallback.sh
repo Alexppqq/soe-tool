@@ -9,7 +9,7 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf;
+source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_env "SPARK_EGO_ENABLE_BLOCKHOST" "true"
 sc_restart_master_by_ego_service
 sleep 10

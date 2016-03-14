@@ -11,6 +11,7 @@ ca_filter_only_singleHost
 #run scenario
 source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
+rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 sc_restart_master_by_ego_service

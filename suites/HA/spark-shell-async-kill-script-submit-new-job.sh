@@ -9,16 +9,17 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf;
+source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
+rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 egosh service stop SPARKMaster
 sleep 5
 $SPARK_HOME/sbin/start-master.sh
 ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"
-[ $? == 1 ] && echo "start master by script failed" && ca_recover_and_exit 1
+[ $? == 1 ] && echo "start master by script failed" && rm -rf /tmp/recovery && ca_recover_and_exit 1
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"

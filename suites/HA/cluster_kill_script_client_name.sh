@@ -7,16 +7,17 @@ source $TEST_TOOL_HOME/lib/workload.func
 
 #calse filter
 ca_filter_only_singleHost
-ca_expect_ego_version_check "3.3" "ego version don't match"
+#ca_expect_ego_version_check "3.3" "ego version don't match"
 #run scenario
 sc_backup_spark_conf;
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
+rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 egosh service stop SPARKMaster
 sleep 5
 $SPARK_HOME/sbin/start-master.sh
-ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"
+ca_keep_check_in_file "ALIVE" "$MASTER_LOG" "1" "40"
 [ $? == 1 ] && echo "start master by script failed" && ca_recover_and_exit 1
 #run case
 echo "$global_case_name - begin" 

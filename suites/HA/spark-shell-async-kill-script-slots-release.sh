@@ -9,9 +9,10 @@ source $TEST_TOOL_HOME/lib/workload.func
 ca_filter_only_singleHost
 
 #run scenario
-sc_backup_spark_conf;
+source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
 sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
+rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
 egosh service stop SPARKMaster
@@ -31,7 +32,7 @@ ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 res1=$?
 ca_keep_check_in_file "Master has changed" "$global_case_log_dir/tmpOut" "1" "40"
 res2=$?
-ca_keep_check_in_file "Release 2 on" "$MASTER_LOG" "1" "40"
+ca_keep_check_in_file "Release 4 on" "$MASTER_LOG" "1" "40"
 res3=$?
 ClientName=$( grep "EGO Client registration" $MASTER_LOG|awk '{ print $NF }' )
 sleep 3
