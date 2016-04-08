@@ -16,7 +16,7 @@ sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.ego.enable.blockhost=false --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.ego.enable.blockhost=false --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 sleep 2
 chmod 000 $SPARK_HOME/bin/spark-class
 ca_keep_check_in_file "is added into Block Host list" "$global_case_log_dir/tmpOut" "1" "100" 

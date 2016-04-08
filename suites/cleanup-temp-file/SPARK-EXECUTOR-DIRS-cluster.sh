@@ -23,7 +23,7 @@ sleep 10
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 10000 &>> $global_case_log_dir/tmpOut 
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 10000 &>> $global_case_log_dir/tmpOut 
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
 ca_keep_check_in_file "Job done" "$SPARK_HOME/work/$drivername/stdout" "1" "40"

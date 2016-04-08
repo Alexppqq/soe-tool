@@ -16,7 +16,7 @@ echo "$global_scenario_name - update spark conf"
 #basic setting
 sc_update_to_spark_env "JAVA_HOME" "$JAVA_HOME"
 sc_update_to_spark_env "HADOOP_CONF_DIR" "$HADOOP_HOME/etc/hadoop"
-sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
+sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:$global_master_port"
 #policy
 sc_config_policy "fairshare"
 #log level

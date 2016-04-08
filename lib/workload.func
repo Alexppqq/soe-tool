@@ -380,7 +380,7 @@ function ca_stop_shuffle_service_by_ego_service ()
       return 1;
    fi
    ca_enable_shuffle_service
-   egosh service stop SPARKSS >> /dev/null
+   egosh service stop $global_es_shuffle >> /dev/null
 }
 function ca_start_shuffle_service_by_ego_service ()
 {
@@ -392,7 +392,7 @@ function ca_start_shuffle_service_by_ego_service ()
       return 1;
    fi
    ca_enable_shuffle_service
-   egosh service start SPARKSS >> /dev/null
+   egosh service start $global_es_shuffle >> /dev/null
    sleep 8
 }
 function ca_kill_shuffle_service_process ()
@@ -585,7 +585,7 @@ function ca_kill_spark_app ()
   fi
 
   local driver_id=${1:-''}
-  local master="spark://${2:-'${SYM_MASTER_HOST}:6066'}" # port should be rest port, default is 6066
+  local master="spark://${2:-'${SYM_MASTER_HOST}:$global_rest_port'}" # port should be rest port, default is $global_rest_port
 
   if [ -z $driver_id ]; then
     echo "error:the driver id is blank" 1>&2
@@ -723,7 +723,7 @@ if [[ $? == 1 ]]; then
    return 1;
 fi
 mv  $SPARK_HOME/bin/exec-wrapper.sh $SPARK_HOME/bin/exec-wrapper.sh.tmp
-$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $TEST_TOOL_HOME/data/tmpOut &
+$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $TEST_TOOL_HOME/data/tmpOut &
 sleep 2
 ca_keep_check_in_file "is added into Block Host list" "$TEST_TOOL_HOME/data/tmpOut" "1" "100" >> /dev/null
 sleep 3

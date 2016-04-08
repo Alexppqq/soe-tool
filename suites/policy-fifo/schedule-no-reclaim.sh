@@ -18,9 +18,9 @@ sleep 5
 fristPriority=5
 secondPriority=10
 taskNum=$SLOTS_PER_HOST
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --conf spark.ego.priority=${fristPriority} --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR $taskNum 25000 &>> $global_case_log_dir/tmpOut1  &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --conf spark.ego.priority=${fristPriority} --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR $taskNum 25000 &>> $global_case_log_dir/tmpOut1  &
 sleep 3
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --conf spark.ego.priority=${secondPriority} --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR $taskNum 15000 &>> $global_case_log_dir/tmpOut2 &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --conf spark.ego.priority=${secondPriority} --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR $taskNum 15000 &>> $global_case_log_dir/tmpOut2 &
 sleep 3
 drivername1=`ca_get_akka_driver_name "$global_case_log_dir/tmpOut1"`
 drivername2=`ca_get_akka_driver_name "$global_case_log_dir/tmpOut2"`
@@ -50,6 +50,6 @@ else
 fi
 
 echo "$global_case_name - end"
-curl -d "" http://$SYM_MASTER_HOST:6066/v1/submissions/kill/$drivername1 &>> /dev/null 
-curl -d "" http://$SYM_MASTER_HOST:6066/v1/submissions/kill/$drivername2 &>> /dev/null
+curl -d "" http://$SYM_MASTER_HOST:$global_rest_port/v1/submissions/kill/$drivername1 &>> /dev/null 
+curl -d "" http://$SYM_MASTER_HOST:$global_rest_port/v1/submissions/kill/$drivername2 &>> /dev/null
 ca_recover_and_exit 0;

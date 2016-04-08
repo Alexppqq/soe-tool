@@ -25,7 +25,7 @@ $HADOOP_HOME/bin/hadoop fs -ls $inputFile
 
 ca_start_shuffle_service_by_ego_service
 egosh service list -ll > $TEST_TOOL_HOME/data/service.csv
-shuffle=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/service.csv "SERVICE,SPARKSS" 'INST_STATE' )
+shuffle=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/service.csv "SERVICE,$global_es_shuffle" 'INST_STATE' )
 echo $shuffle
 [[ $shuffle != "INST_STATE:RUN"  ]] && echo "start shuffle service failed" && ca_recover_and_exit 1
 

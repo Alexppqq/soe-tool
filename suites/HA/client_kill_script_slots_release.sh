@@ -14,7 +14,7 @@ sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
-egosh service stop SPARKMaster
+egosh service stop $global_es_master
 sleep 5
 $SPARK_HOME/sbin/start-master.sh
 ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"
@@ -22,7 +22,7 @@ ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut  &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut  &
 appID=$! 
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"

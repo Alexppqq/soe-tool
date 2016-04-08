@@ -312,7 +312,7 @@ function sc_restart_master_by_ego_service ()
       echo "error: ./sc_restart_master_by_ego_service: no egosh be found."
       ca_recover_and_exit 1;
    fi
-   egosh service stop SPARKMaster; sleep 3; egosh service start SPARKMaster
+   egosh service stop $global_es_master; sleep 3; egosh service start $global_es_master
 }
 
 function sc_restart_master_by_script ()
@@ -367,6 +367,43 @@ function fw_env_check ()
     fi
   done
   IFS=$IFS_OLD
+}
+function fw_get_value_from_conf_file()
+{
+   if [[ "$#" -lt 2 || ! -f $1 || -z "$2"  ]]; then
+      echo "usage: ./fw_get_value_from_conf_file filename variable_name default_value"
+      exit 1
+   fi
+   local variable_num=$( cat $1 |grep "^$2"|wc -l )
+   if [[ $variable_num -gt 1 ]]; then
+      echo "The num of variable $2 is not single, please check"
+      return 1;
+   fi
+
+   local variable_name=$( cat $1 |grep "^$2" )
+   if [[ -z $variable_name ]]; then
+      variable_value=$3
+   elif [[ $variable_name =~ "=" ]]; then
+      variable_value=${variable_name#*=}
+   else
+      variable_value=${variable_name##* }
+   fi
+
+   echo $variable_value
+}
+
+function fw_get_config()
+{
+   global_master_port=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_MASTER_PORT" "7077" )
+   global_rest_port=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-defaults.conf "spark.master.rest.port" "6066" )
+   local instance_group_name=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_INSTANCE_GROUP_NAME" "" )
+   if [[ -z $instance_group_name ]]; then
+       global_es_master="SPARKMaster"
+       global_es_shuffle="$SPARKSS"
+   else
+       global_es_master="$instance_group_name-sparkms-batch"
+       global_es_shuffle="$instance_group_name-sparkss"
+   fi
 }
 function fw_get_ego_version ()
 {

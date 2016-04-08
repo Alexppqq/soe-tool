@@ -35,7 +35,7 @@ ca_keep_check_in_file "$randomRG" "$MASTER_LOG" "1" "15"
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
 ps ux|grep Master
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 
 sleep 15
 #get alloc info
@@ -49,11 +49,11 @@ echo "$global_case_name - end"
 appPID=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
 echo $appPID
 if [[ -z "$appPID" ]]; then
-   egosh service stop SPARKMaster
+   egosh service stop $global_es_master
 else
    kill  $appPID
    sleep 5
-   egosh service stop SPARKMaster
+   egosh service stop $global_es_master
 fi
 sleep 5
 egosh alloc list -ll |grep "SPARK_RESMGR"

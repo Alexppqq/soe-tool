@@ -14,7 +14,7 @@ source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 30000 &>> $global_case_log_dir/tmpOut &
 sleep 3
 ca_keep_check_in_file "Starting task" "$global_case_log_dir/tmpOut" "1" "40"
 ca_kill_process_by_SPARK_HOME "executor-id"

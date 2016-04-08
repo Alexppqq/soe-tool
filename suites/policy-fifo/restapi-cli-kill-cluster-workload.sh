@@ -14,12 +14,12 @@ source $TEST_TOOL_HOME/scenario/scenario_fifo_conf
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 20000 &>> $global_case_log_dir/tmpOut
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 20000 &>> $global_case_log_dir/tmpOut
 
 sleep 10
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
-curl -d "" http://$SYM_MASTER_HOST:6066/v1/submissions/kill/$drivername 1> $global_case_log_dir/tmpKill 2>> /dev/null
+curl -d "" http://$SYM_MASTER_HOST:$global_rest_port/v1/submissions/kill/$drivername 1> $global_case_log_dir/tmpKill 2>> /dev/null
 killstatus=`ca_get_kill_driver_status $global_case_log_dir/tmpKill`
 
 echo "$global_case_name - write report"

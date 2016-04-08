@@ -21,7 +21,7 @@ ca_check_blocklist_after_submission "$alloc_id" "$SYM_MASTER_HOST"
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit  --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 sleep 10
 ca_keep_check_in_file "State of driver-" "$global_case_log_dir/tmpOut" "1" "40"
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`

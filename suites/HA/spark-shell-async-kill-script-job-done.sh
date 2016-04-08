@@ -10,12 +10,12 @@ ca_filter_only_singleHost
 
 #run scenario
 source $TEST_TOOL_HOME/scenario/scenario_minimun_conf
-sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:7077"
+sc_update_to_spark_default "spark.master" "spark://$SYM_MASTER_HOST:$global_master_port"
 sc_update_to_spark_default "spark.deploy.recoveryMode" "FILESYSTEM"
 rm -rf /tmp/recovery
 mkdir /tmp/recovery
 sc_update_to_spark_default "spark.deploy.recoveryDirectory" "/tmp/recovery"
-egosh service stop SPARKMaster
+egosh service stop $global_es_master
 sleep 5
 $SPARK_HOME/sbin/start-master.sh
 ca_keep_check_in_file "Enter schedule" "$MASTER_LOG" "1" "40"

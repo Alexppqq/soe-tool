@@ -30,7 +30,7 @@ sleep 10
 #run shot case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &
 sleep 3
 ca_keep_check_in_file "RUNNING" "$global_case_log_dir/tmpOut" "1" "40"
 [ $? == 1 ] && echo "cluster mode submit failed" && ca_recover_and_exit 1
@@ -46,11 +46,11 @@ echo "$global_case_name - end"
 appPID=`ps -ux |grep $SPARK_HOME|grep $SAMPLE_JAR|grep -v grep|awk '{print $2}'`
 echo $appPID
 if [[ -z "$appPID" ]]; then
-   egosh service stop SPARKMaster
+   egosh service stop $global_es_master
 else
    kill  $appPID
    sleep 5
-   egosh service stop SPARKMaster
+   egosh service stop $global_es_master
 fi
 sleep 5
 egosh alloc list -ll |grep "SPARK_RESMGR"

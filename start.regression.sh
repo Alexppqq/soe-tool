@@ -10,7 +10,6 @@
 source ./conf/environment.conf
 ### source framework library function
 source ./lib/framework.func
-
 ### parameter validaty check,  create report and logs dir
 if [[ -z "$1" || -n $2 ]]; then
    echo " Usage: There're two modes to run this tools."
@@ -27,7 +26,11 @@ elif [[ ! -x $1 ]]; then
 fi
 ### environment check
 fw_env_check
-
+export global_master_port
+export global_rest_port
+export global_es_master
+export global_es_shuffle
+fw_get_config
 ### source EGO profile
 source $EGO_TOP/profile.platform
 

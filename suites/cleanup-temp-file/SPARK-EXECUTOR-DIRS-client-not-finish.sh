@@ -23,7 +23,7 @@ sleep 15
 #run case
 echo "$global_case_name - begin" 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 60000 &>> $global_case_log_dir/tmpOut &
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 60000 &>> $global_case_log_dir/tmpOut &
 appPID=$!
 echo "$global_case_name - app pid:$appPID"
 #wait till task run

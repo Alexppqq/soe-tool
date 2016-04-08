@@ -23,7 +23,7 @@ echo "$global_case_name - begin"
 echo "$global_case_name - sbumit job"
 touch $global_case_log_dir/tmpOut
 chmod 777 $global_case_log_dir/tmpOut
-su - $sys_user -c "$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &"
+su - $sys_user -c "$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode client --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 1000 &>> $global_case_log_dir/tmpOut &"
 sleep 3
 ca_keep_check_in_file "is added into Block Host list" "$global_case_log_dir/tmpOut" "1" "100" 
 res1=$?

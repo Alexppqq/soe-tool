@@ -16,12 +16,12 @@ echo "$global_case_name - begin"
 echo "$global_case_name - sbumit job"
 ca_start_shuffle_service_by_ego_service
 egosh service list -ll > $TEST_TOOL_HOME/data/service.csv
-shuffle=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/service.csv "SERVICE,SPARKSS" 'INST_STATE' )
+shuffle=$( python $TEST_TOOL_HOME/lib/ego/get_ego_alloc_val.py $TEST_TOOL_HOME/data/service.csv "SERVICE,$global_es_shuffle" 'INST_STATE' )
 echo $shuffle
 [[ $shuffle != "INST_STATE:RUN"  ]] && echo "start shuffle service failed" && ca_recover_and_exit 1
 
 
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077  --deploy-mode cluster  --class org.apache.spark.examples.SparkTC $SPARK_HOME/lib/spark-examples*  &>> $global_case_log_dir/tmpOut
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port  --deploy-mode cluster  --class org.apache.spark.examples.SparkTC $SPARK_HOME/lib/spark-examples*  &>> $global_case_log_dir/tmpOut
 
 sleep 5
 driverStatus=`ca_get_akka_driver_status $global_case_log_dir/tmpOut`

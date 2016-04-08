@@ -15,7 +15,7 @@ source $TEST_TOOL_HOME/scenario/scenario_fairshare_conf
 echo "$global_case_name - begin" 
 
 echo "$global_case_name - sbumit job"
-$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:7077 --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut
+$SPARK_HOME/bin/spark-submit --conf spark.master=spark://$SYM_MASTER_HOST:$global_master_port --deploy-mode cluster  --class job.submit.control.submitSleepTasks $SAMPLE_JAR 3 6000 &>> $global_case_log_dir/tmpOut
 sleep 3
 drivername=`ca_get_akka_driver_name $global_case_log_dir/tmpOut`
 echo "$global_case_name - driver name: $drivername" 
