@@ -31,6 +31,9 @@ export global_rest_port
 export global_es_master
 export global_es_shuffle
 fw_get_config
+if [[ $RUNTIME_ENV = "conductor" ]]; then 
+    fw_create_link
+fi
 ### source EGO profile
 source $EGO_TOP/profile.platform
 
@@ -55,12 +58,14 @@ if [[ -z $global_spark_version ]]; then
 #   echo "Spark version: $global_spark_version"
 fi
 ### hadoop command check
-global_hadoop_version=`fw_get_hadoop_version`
-if [[ -z $global_hadoop_version ]]; then
-   echo "Hadoop version is missed. please make sure Hadoop is well installed."
-   exit 1
+if [[ $DIST_FILE_SYSTEM = "HDFS" ]]; then 
+    global_hadoop_version=`fw_get_hadoop_version`
+    if [[ -z $global_hadoop_version ]]; then
+        echo "Hadoop version is missed. please make sure Hadoop is well installed."
+        exit 1
 #else
 #   echo "Hadoop version: $global_hadoop_version"
+    fi
 fi
 ### soe command check
 global_soe_version=`fw_get_spark_on_ego_version`

@@ -357,7 +357,7 @@ function sc_verify_policy_take_effect ()
 function fw_env_check ()
 {
   #only check mandatory env
-  local user_env_list="$SPARK_HOME,$HADOOP_HOME,$EGO_TOP,$SYM_MASTER_HOST,$TEST_TOOL_HOME,$JAVA_HOME,$HOST_NUM,$SLOTS_PER_HOST,$DIST_FILE_SYSTEM"
+  local user_env_list="$SPARK_HOME,$EGO_TOP,$SYM_MASTER_HOST,$TEST_TOOL_HOME,$JAVA_HOME,$HOST_NUM,$SLOTS_PER_HOST,$DIST_FILE_SYSTEM,$RUNTIME_ENV,$EXECUTION_USER"
   local IFS_OLD=$IFS
   IFS=','
   for user_env in $user_env_list; do
@@ -367,6 +367,10 @@ function fw_env_check ()
     fi
   done
   IFS=$IFS_OLD
+  if [[ $DIST_FILE_SYSTEM = "HDFS" && -z "$HADOOP_HOME" ]]; then 
+    echo "HDFS need to set HADOOP_HOME,please make sure ./lib/environment.conf is well configured."
+    exit 1;
+  fi
 }
 function fw_get_value_from_conf_file()
 {
@@ -394,6 +398,13 @@ function fw_get_value_from_conf_file()
 
 function fw_get_config()
 {
+   local auth_mode=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_EGO_AUTH_MODE" "" )
+   if [[ -n $auth_mode ]]; then 
+      sc_update_to_spark_env "SPARK_EGO_UNAME" "ADMIN"
+      sc_update_to_spark_env "SPARK_EGO_PASSWD" "ADMIN"
+   fi
+   sed -i "s/^DEPLOY_MODE/\#DEPLOY_MODE/g" $SPARK_HOME/conf/spark-env.sh
+   mv $SPARK_HOME/conf/metrics.properties $SPARK_HOME/conf/metrics.properties.bak
    global_master_port=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_MASTER_PORT" "7077" )
    global_rest_port=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-defaults.conf "spark.master.rest.port" "6066" )
    local instance_group_name=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_INSTANCE_GROUP_NAME" "" )
@@ -405,6 +416,31 @@ function fw_get_config()
        global_es_shuffle="$instance_group_name-sparkss"
    fi
 }
+function fw_get_elk_path ()
+{
+     local elk_log=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_EGO_LOG_DIR" "" )
+     local sig_uuid=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_INSTANCE_GROUP_ID" "" )
+     local sig_group_name=$( fw_get_value_from_conf_file $SPARK_HOME/conf/spark-env.sh "SPARK_INSTANCE_GROUP_NAME" "" )
+     if [[ -z $elk_log || -z $sig_uuid || -z $sig_group_name ]]; then
+         echo ""
+     else
+         echo "$elk_log/$sig_uuid.$SUBMIT_USER.$sig_group_name.$EXECUTION_USER"
+     fi
+}
+function fw_create_link ()
+{
+    elk_log_path=$( fw_get_elk_path )
+    if [[ -z $elk_log_path ]]; then
+        echo "Can't get the value of elk_log,sig_uuid or sig_group_name, please check if this is the conductor env"
+        exit 1; 
+    fi
+    rm -rf $SPARK_HOME/work
+    ln -s $elk_log_path $SPARK_HOME/work
+    rm -rf $SPARK_HOME/conf/spark-defaults.conf
+    ln -s $SPARK_HOME/../master_conf/spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
+    ln -s $SPARK_HOME/lib/ego/log4j.properties $SPARK_HOME/conf/log4j.properties
+}
+
 function fw_get_ego_version ()
 {
   local ego_version=""
@@ -431,7 +467,7 @@ function fw_get_spark_version ()
 {
   local spark_version=""
   if [[ -f $SPARK_HOME/bin/spark-submit && -x $SPARK_HOME/bin/spark-submit ]]; then
-     spark_version=`$SPARK_HOME/bin/spark-submit --version 2>&1 | awk '/version/ {print $NF}'`
+     spark_version=$(${SPARK_HOME}/bin/spark-submit ${TEST_TOOL_HOME}/lib/common/get_version.py)
   else
      echo "error: $SPARK_HOME/bin/spark-submit does not exist or has no executable right." >&2
   fi
